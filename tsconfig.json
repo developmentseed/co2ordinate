@@ -2,4 +2,5 @@
   "compilerOptions": {
     "jsx": "react-jsx"
   },
+  "lib": ["es2019"]
 }
