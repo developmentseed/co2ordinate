@@ -1,17 +1,12 @@
 import { Feature, Point } from 'geojson'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Select from 'react-select'
-import DEFAULT_TEAM from './defaultTeam'
 import styled from 'styled-components'
 import mapboxgl, {Map} from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import getOnsiteLocations, { formatCO2, getGreatCircles } from './getOnsiteLocations'
 import countryCodeEmoji from 'country-code-emoji'
 import { featureCollection } from '@turf/helpers'
-
-type Team = {
-  id: string
-  name: string
-}
 
 type TeamMemberProps = {
   name: string
@@ -21,7 +16,6 @@ type TeamMember = Feature<Point, TeamMemberProps>
 
 type PlannerProps = {
   team: TeamMember[]
-  teams?: Team[]
 }
 
 const THEME_COLOR = '#ff002c'
@@ -73,18 +67,22 @@ const Footer = styled.div`
   margin-top: 2rem;
 `;
 
-export function Planner({ team = DEFAULT_TEAM, teams }: PlannerProps) {
+export function Planner({ team }: PlannerProps) {
   const selectEntries = useMemo(() => {
     if (!team?.length) return []
+    const teams = team.reduce((acc: string[], t: TeamMember) => {
+      if (!acc.includes(t.properties.team)) acc.push(t.properties.team)
+      return acc
+    }, [])
     if (!teams) return team
     return [
       { properties: { id: 'ALL', name: 'ALL TEAMS' } },
       ...teams.map((p) => ({
-        properties: { id: p.id, type: 'team', name: `TEAM: ${p.name}` },
+        properties: { id: p, type: 'team', name: `TEAM: ${p}` },
       })),
       ...team,
     ]
-  }, [team, teams])
+  }, [team])
 
   const [selectedTeamMembers, setSelectedTeamMembers] = useState([])
   const onSelectTeamMembers = useCallback(
