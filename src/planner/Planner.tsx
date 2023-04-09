@@ -2,9 +2,12 @@ import { Feature, Point } from 'geojson'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Select from 'react-select'
 import styled from 'styled-components'
-import mapboxgl, {Map} from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import getOnsiteLocations, { formatCO2, getGreatCircles } from './getOnsiteLocations'
+import mapboxgl, { Map } from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
+import getOnsiteLocations, {
+  formatCO2,
+  getGreatCircles,
+} from './getOnsiteLocations'
 import countryCodeEmoji from 'country-code-emoji'
 import { featureCollection } from '@turf/helpers'
 
@@ -43,29 +46,27 @@ const Table = styled.table`
 `
 const ResultRow = styled.tr`
   cursor: pointer;
-  background: ${({ selected }) =>
-    selected ? THEME_COLOR : 'transparent'};
+  background: ${({ selected }) => (selected ? THEME_COLOR : 'transparent')};
   color: ${({ selected }) => (selected ? 'white' : 'inherit')};
   :hover {
     background: #ddd;
   }
 `
 
-
 const TeamMembersSection = styled.div`
   max-width: 600px;
-`;
+`
 const TeamMembersRow = styled.tr`
   color: ${({ disabled }) => (disabled ? 'grey' : 'inherit')};
-`;
+`
 
 const Equivalent = styled.p`
   margin: 0.5rem 0 1rem;
-`;
+`
 
 const Footer = styled.div`
   margin-top: 2rem;
-`;
+`
 
 export function Planner({ team }: PlannerProps) {
   const selectEntries = useMemo(() => {
@@ -137,22 +138,21 @@ export function Planner({ team }: PlannerProps) {
 
   const [selectedResult, setSelectedResult] = useState(null)
 
-
   // Set selected result the first time, once we have results
   useEffect(() => {
     if (!selectedResult && results?.length) {
-      setSelectedResult(results[0].properties.iata_code);
+      setSelectedResult(results[0].properties.iata_code)
     }
-  }, [selectedResult, results]);
+  }, [selectedResult, results])
 
   // Select first result every time results change
   useEffect(() => {
-    if (results?.length) setSelectedResult(results[0].properties.iata_code);
-  }, [results]);
+    if (results?.length) setSelectedResult(results[0].properties.iata_code)
+  }, [results])
 
-  const mapContainer = useRef();
-  const mapRef = useRef<Map>();
-  const [mapLoaded, setMapLoaded] = useState(false);
+  const mapContainer = useRef()
+  const mapRef = useRef<Map>()
+  const [mapLoaded, setMapLoaded] = useState(false)
   useEffect(() => {
     const mbMap = new mapboxgl.Map({
       container: mapContainer.current,
@@ -162,30 +162,30 @@ export function Planner({ team }: PlannerProps) {
       dragRotate: false,
       zoom: 0.25,
       maxZoom: 14,
-      accessToken: process.env.MAPBOX_TOKEN
-    });
+      accessToken: process.env.MAPBOX_TOKEN,
+    })
 
-    mapRef.current = mbMap;
+    mapRef.current = mbMap
 
-    mbMap.on('load', () => setMapLoaded(true));
-  }, []);
+    mbMap.on('load', () => setMapLoaded(true))
+  }, [])
 
   const currentResult = useMemo(() => {
-    if (!selectedResult || !results) return null;
-    return results.find((r) => r.properties.iata_code === selectedResult);
-  }, [results, selectedResult]);
+    if (!selectedResult || !results) return null
+    return results.find((r) => r.properties.iata_code === selectedResult)
+  }, [results, selectedResult])
 
   useEffect(() => {
-    const mbMap = mapRef.current;
+    const mbMap = mapRef.current
     if (mapLoaded && mbMap) {
-      if (mbMap.getLayer('great-circles')) mbMap.removeLayer('great-circles');
-      if (mbMap.getSource('great-circles')) mbMap.removeSource('great-circles');
-      if (!currentResult) return;
-      const greatCircles = featureCollection(getGreatCircles(currentResult));
+      if (mbMap.getLayer('great-circles')) mbMap.removeLayer('great-circles')
+      if (mbMap.getSource('great-circles')) mbMap.removeSource('great-circles')
+      if (!currentResult) return
+      const greatCircles = featureCollection(getGreatCircles(currentResult))
       mbMap.addSource('great-circles', {
         type: 'geojson',
-        data: greatCircles
-      });
+        data: greatCircles,
+      })
 
       mbMap.addLayer({
         id: 'great-circles',
@@ -193,45 +193,45 @@ export function Planner({ team }: PlannerProps) {
         type: 'line',
         paint: {
           'line-color': THEME_COLOR,
-          'line-width': 2
-        }
-      });
+          'line-width': 2,
+        },
+      })
     }
-  }, [mapLoaded, results, selectedResult, currentResult]);
+  }, [mapLoaded, results, selectedResult, currentResult])
 
   const equivalent = useMemo(() => {
-    if (!currentResult) return null;
+    if (!currentResult) return null
     const formatCO2 = (currentResult, factor) =>
-      (currentResult.properties.totalCO2 / factor).toFixed(2);
+      (currentResult.properties.totalCO2 / factor).toFixed(2)
     return [
       [
         `🇮🇳 approx. ${formatCO2(currentResult, 1930)} 
     times what an average Indian citizen emits per year`,
-        'https://ourworldindata.org/grapher/co-emissions-per-capita'
+        'https://ourworldindata.org/grapher/co-emissions-per-capita',
       ],
       [
         `🧊 equivalent to approx. ${formatCO2(
           currentResult,
           1000 / 3
         )}  square meters of Arctic sea ice loss`,
-        'https://science.sciencemag.org/content/354/6313/747'
+        'https://science.sciencemag.org/content/354/6313/747',
       ],
       [
         `🍔 equivalent to the emissions of approx. ${formatCO2(
           currentResult,
           1.8
         )} cheese burgers`,
-        'https://www.sixdegreesnews.org/archives/10261/the-carbon-footprint-of-a-cheeseburger'
+        'https://www.sixdegreesnews.org/archives/10261/the-carbon-footprint-of-a-cheeseburger',
       ],
       [
         `🚗 equivalent to approx. ${formatCO2(
           currentResult,
           0.15
         )} kilometers travelled with a small car`,
-        'https://ourworldindata.org/travel-carbon-footprint'
-      ]
-    ][Math.floor(Math.random() * 4)];
-  }, [currentResult]);
+        'https://ourworldindata.org/travel-carbon-footprint',
+      ],
+    ][Math.floor(Math.random() * 4)]
+  }, [currentResult])
 
   return (
     <>

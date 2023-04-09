@@ -73,7 +73,7 @@ export default [
     },
     properties: {
       name: 'Nikola Tesla',
-      team: 'Inventors'
+      team: 'Inventors',
     },
   },
   {
@@ -84,7 +84,7 @@ export default [
     },
     properties: {
       name: 'William Kamkwamba',
-      team: 'Inventors'
+      team: 'Inventors',
     },
   },
   {
@@ -95,7 +95,7 @@ export default [
     },
     properties: {
       name: 'Grace Hopper',
-      team: 'Inventors'
+      team: 'Inventors',
     },
   },
   {
@@ -106,7 +106,7 @@ export default [
     },
     properties: {
       name: 'Wangari Maathai',
-      team: 'Scientists'
+      team: 'Scientists',
     },
   },
   {
@@ -120,5 +120,4 @@ export default [
       team: 'Scientists',
     },
   },
- 
 ]

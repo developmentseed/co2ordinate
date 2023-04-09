@@ -125,6 +125,27 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     to-fast-properties "^2.0.0"
 
+"@devseed-ui/button@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@devseed-ui/button/-/button-4.1.0.tgz#5640263219c70048e00bfce38359d25885ef08a4"
+  integrity sha512-M7vTxioT/MK95P2pi1pVjKDktH2a9yoRP5geFHDwJhDqDQwoKD58+bZQn0+h6v78n/aCkyQoUPpCCzIeYeu+MA==
+  dependencies:
+    "@devseed-ui/collecticons" "^4.1.0"
+    "@devseed-ui/theme-provider" "^4.1.0"
+
+"@devseed-ui/collecticons@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@devseed-ui/collecticons/-/collecticons-4.1.0.tgz#d0d5237f1c03ce59d0d3a44cfd019d613761aba6"
+  integrity sha512-hJWfflJZe6tjRtjgyk+zs/2UuLugGy+Kbs2nNULREAAjBp1Kt4stcrwKkAtbev/dbC+u0hGXPP8gCd5sG5c4Ag==
+
+"@devseed-ui/theme-provider@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@devseed-ui/theme-provider/-/theme-provider-4.1.0.tgz#8e2718d879cd6bc2c4c43be6e3857702b3f97d17"
+  integrity sha512-1wGlau/u2rsGdEVe18tKkyWlF61fMVFcQ/j6L08HwBGT/n1pPLm07Jxgv+tcap5zAmuOon4qobZCbOrgXwMfOw==
+  dependencies:
+    lodash.get "^4.4.2"
+    polished "^3.4.2"
+
 "@emotion/babel-plugin@^11.10.6":
   version "11.10.6"
   resolved "https://registry.yarnpkg.com/@emotion/babel-plugin/-/babel-plugin-11.10.6.tgz#a68ee4b019d661d6f37dec4b8903255766925ead"
@@ -2595,6 +2616,11 @@ locate-path@^6.0.0:
   dependencies:
     p-locate "^5.0.0"
 
+lodash.get@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
+  integrity sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==
+
 lodash.merge@^4.6.2:
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
@@ -2948,6 +2974,13 @@ picomatch@^2.3.0, picomatch@^2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.1.tgz#3ba3833733646d9d3e4995946c1365a67fb07a42"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
+
+polished@^3.4.2:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/polished/-/polished-3.7.2.tgz#ec5ddc17a7d322a574d5e10ddd2a6f01d3e767d1"
+  integrity sha512-pQKtpZGmsZrW8UUpQMAnR7s3ppHeMQVNyMDKtUyKwuvDmklzcEyM5Kllb3JyE/sE/x7arDmyd35i+4vp99H6sQ==
+  dependencies:
+    "@babel/runtime" "^7.12.5"
 
 postcss-value-parser@^4.0.2, postcss-value-parser@^4.2.0:
   version "4.2.0"

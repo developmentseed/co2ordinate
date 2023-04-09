@@ -19,6 +19,8 @@
     "build": "parcel build"
   },
   "dependencies": {
+    "@devseed-ui/button": "^4.1.0",
+    "@devseed-ui/theme-provider": "^4.1.0",
     "@turf/bbox": "^6.5.0",
     "@turf/distance": "^6.5.0",
     "@turf/great-circle": "^6.5.0",
