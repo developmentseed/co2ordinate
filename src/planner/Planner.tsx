@@ -156,7 +156,7 @@ export function Planner({ team }: PlannerProps) {
   useEffect(() => {
     const mbMap = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/devseed/ckyjz196q5m3r14mh4o1srg5s',
+      style: 'mapbox://styles/mapbox/light-v11',
       logoPosition: 'bottom-left',
       pitchWithRotate: false,
       dragRotate: false,
