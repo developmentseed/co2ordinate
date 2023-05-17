@@ -1,4 +1,5 @@
 {
+  "homepage": "meet-and-greta/",
   "devDependencies": {
     "@types/geojson": "^7946.0.10",
     "@types/mapbox-gl": "^2.7.10",
