@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Select from 'react-select'
 import styled from 'styled-components'
 import mapboxgl, { Map } from 'mapbox-gl'
+import style from './mapbox-style.json'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import getOnsiteLocations, {
   formatCO2,
@@ -156,7 +157,7 @@ export function Planner({ team }: PlannerProps) {
   useEffect(() => {
     const mbMap = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
+      style,
       logoPosition: 'bottom-left',
       pitchWithRotate: false,
       dragRotate: false,
