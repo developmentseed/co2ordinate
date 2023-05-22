@@ -202,7 +202,6 @@
             "type": "vector"
         }
     },
-    "sprite": "mapbox://sprites/fausto-perez/clhyoan2a028d01qub0gj9rk3/ccru6yl59zmbe1ee8o5e0hx52",
     "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
     "layers": [
         {

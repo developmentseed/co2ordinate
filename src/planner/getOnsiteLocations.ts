@@ -23,7 +23,7 @@ interface AirportTeamMember extends Feature<Point, TeamMember> {
   co2: number | null
   homeAirportCode: string | null
 }
-interface Result extends Airport {
+export interface Result extends Airport {
   airportTeamMembers: AirportTeamMember[]
   totalKm: number
   totalCO2: number
