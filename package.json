@@ -27,8 +27,10 @@
     "@turf/helpers": "^6.5.0",
     "country-code-emoji": "^2.3.0",
     "mapbox-gl": "^2.13.0",
+    "papaparse": "^5.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.3",
     "react-select": "^5.7.2",
     "styled-components": "^5.3.9",
     "turf": "^3.0.14"

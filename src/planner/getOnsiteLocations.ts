@@ -5,7 +5,7 @@ import getGreatCircle from '@turf/great-circle'
 import { featureCollection } from '@turf/helpers'
 import { Feature, Point } from 'geojson'
 
-interface TeamMember {
+export interface TeamMember {
   title: string
   id: string
   location: [number, number]
