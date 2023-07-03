@@ -3,13 +3,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Select from 'react-select'
 import styled from 'styled-components'
 import mapboxgl, { Map } from 'mapbox-gl'
+import style from './mapbox-style.json'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import getOnsiteLocations, {
-  formatCO2,
-  getGreatCircles,
-} from './getOnsiteLocations'
+import getOnsiteLocations, { Result, formatCO2 } from './getOnsiteLocations'
 import countryCodeEmoji from 'country-code-emoji'
 import { featureCollection } from '@turf/helpers'
+import useMapStyle from './useMapStyle'
 
 type TeamMemberProps = {
   name: string
@@ -156,7 +155,7 @@ export function Planner({ team }: PlannerProps) {
   useEffect(() => {
     const mbMap = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
+      style,
       logoPosition: 'bottom-left',
       pitchWithRotate: false,
       dragRotate: false,
@@ -170,34 +169,19 @@ export function Planner({ team }: PlannerProps) {
     mbMap.on('load', () => setMapLoaded(true))
   }, [])
 
-  const currentResult = useMemo(() => {
+  const currentResult: Feature<Point, Result> = useMemo(() => {
     if (!selectedResult || !results) return null
     return results.find((r) => r.properties.iata_code === selectedResult)
   }, [results, selectedResult])
 
+  const currentStyle = useMapStyle(currentResult)
+
   useEffect(() => {
     const mbMap = mapRef.current
     if (mapLoaded && mbMap) {
-      if (mbMap.getLayer('great-circles')) mbMap.removeLayer('great-circles')
-      if (mbMap.getSource('great-circles')) mbMap.removeSource('great-circles')
-      if (!currentResult) return
-      const greatCircles = featureCollection(getGreatCircles(currentResult))
-      mbMap.addSource('great-circles', {
-        type: 'geojson',
-        data: greatCircles,
-      })
-
-      mbMap.addLayer({
-        id: 'great-circles',
-        source: 'great-circles',
-        type: 'line',
-        paint: {
-          'line-color': THEME_COLOR,
-          'line-width': 2,
-        },
-      })
+      mbMap.setStyle(currentStyle)
     }
-  }, [mapLoaded, results, selectedResult, currentResult])
+  }, [mapLoaded, currentStyle])
 
   const equivalent = useMemo(() => {
     if (!currentResult) return null
