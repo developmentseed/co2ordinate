@@ -1,5 +1,6 @@
 import { Feature, Point } from 'geojson'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { render } from 'react-dom'
 import Select from 'react-select'
 import styled from 'styled-components'
 import mapboxgl, { Map } from 'mapbox-gl'
@@ -7,8 +8,8 @@ import style from './mapbox-style.json'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import getOnsiteLocations, { Result, formatCO2 } from './getOnsiteLocations'
 import countryCodeEmoji from 'country-code-emoji'
-import { featureCollection } from '@turf/helpers'
 import useMapStyle from './useMapStyle'
+import Popup from './Popup'
 
 type TeamMemberProps = {
   name: string
@@ -17,7 +18,7 @@ type TeamMemberProps = {
 type TeamMember = Feature<Point, TeamMemberProps>
 
 type PlannerProps = {
-  team: TeamMember[]
+  baseTeam: TeamMember[]
 }
 
 const THEME_COLOR = '#ff002c'
@@ -67,7 +68,34 @@ const Footer = styled.div`
   margin-top: 2rem;
 `
 
-export function Planner({ team }: PlannerProps) {
+export function Planner({ baseTeam }: PlannerProps) {
+  const [currentlyAddedMember, setCurrentlyAddedMember] = useState(null)
+  const [customTeamMembers, setCustomTeamMembers] = useState([])
+  const [selectedTeamMembers, setSelectedTeamMembers] = useState([])
+
+  const team = useMemo(() => {
+    return [...baseTeam, ...customTeamMembers]
+  }, [baseTeam, customTeamMembers])
+
+  const addMember = useCallback(
+    (name: string) => {
+      setCurrentlyAddedMember(null)
+      const newTeamMember = {
+        ...currentlyAddedMember,
+        properties: {
+          name,
+        },
+      }
+      setCustomTeamMembers([
+        ...customTeamMembers,
+        newTeamMember,
+      ])
+      popupRef.current.remove()
+      setSelectedTeamMembers([...selectedTeamMembers, newTeamMember])
+    },
+    [currentlyAddedMember, selectedTeamMembers, customTeamMembers]
+  )
+
   const selectEntries = useMemo(() => {
     if (!team?.length) return []
     const teams = team.reduce((acc: string[], t: TeamMember) => {
@@ -84,7 +112,6 @@ export function Planner({ team }: PlannerProps) {
     ]
   }, [team])
 
-  const [selectedTeamMembers, setSelectedTeamMembers] = useState([])
   const onSelectTeamMembers = useCallback(
     (teamMembers) => {
       const populatedSelection = teamMembers.flatMap((teamMember) => {
@@ -149,6 +176,11 @@ export function Planner({ team }: PlannerProps) {
     if (results?.length) setSelectedResult(results[0].properties.iata_code)
   }, [results])
 
+  const currentResult: Feature<Point, Result> = useMemo(() => {
+    if (!selectedResult || !results) return null
+    return results.find((r) => r.properties.iata_code === selectedResult)
+  }, [results, selectedResult])
+
   const mapContainer = useRef()
   const mapRef = useRef<Map>()
   const [mapLoaded, setMapLoaded] = useState(false)
@@ -166,13 +198,41 @@ export function Planner({ team }: PlannerProps) {
 
     mapRef.current = mbMap
 
-    mbMap.on('load', () => setMapLoaded(true))
-  }, [])
+    mbMap.on('click', (e) => {
+      const currentTeamMember = {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [e.lngLat.lng, e.lngLat.lat],
+        },
+      }
+      setCurrentlyAddedMember(currentTeamMember)
+    })
 
-  const currentResult: Feature<Point, Result> = useMemo(() => {
-    if (!selectedResult || !results) return null
-    return results.find((r) => r.properties.iata_code === selectedResult)
-  }, [results, selectedResult])
+    mbMap.on('load', () => setMapLoaded(true))
+  }, [setCurrentlyAddedMember])
+
+  const popupRef = useRef<mapboxgl.Popup>()
+
+  useEffect(() => {
+    const mbMap = mapRef.current
+    if (mapLoaded && mbMap && currentlyAddedMember) {
+      if (!popupRef.current) {
+        popupRef.current = new mapboxgl.Popup({
+          closeButton: true,
+          closeOnClick: false,
+        })
+      }
+
+      const popupNode = document.createElement('div')
+      render(<Popup onSubmit={addMember} />, popupNode)
+
+      popupRef.current
+        .setLngLat(currentlyAddedMember?.geometry.coordinates)
+        .setDOMContent(popupNode)
+      popupRef.current.addTo(mbMap)
+    }
+  }, [mapLoaded, currentlyAddedMember])
 
   const currentStyle = useMapStyle(currentResult)
 
@@ -233,6 +293,7 @@ export function Planner({ team }: PlannerProps) {
         getOptionLabel={(option) => option.properties.name}
         getOptionValue={(option) => option.properties.name}
         onChange={onSelectTeamMembers}
+        value={selectedTeamMembers}
       />
       <Candidates>
         <CandidatesTableSection>

@@ -79,7 +79,7 @@ export function App() {
                 Add your team (soon)
               </Button>
             </Header>
-            <Planner team={DEFAULT_TEAM} />
+            <Planner baseTeam={DEFAULT_TEAM} />
           </PageMainContent>
         </PageBody>
       </Page>
