@@ -4,7 +4,8 @@ import { Result, getGreatCircles } from "./getOnsiteLocations";
 import style from './maplibre-style.json'
 import { useMemo } from "react";
 
-export default function useMapStyle(currentResult: Feature<Point, Result>) {
+export default function useMapStyle(currentResult: Feature<Point, Result>, results: Feature<Point, Result>[]) {
+
   const currentStyle = useMemo(() => {
     const newStyle = { ...style }
     if (!currentResult) return newStyle

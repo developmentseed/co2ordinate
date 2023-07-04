@@ -56,7 +56,8 @@ function getCO2(distKm: number) {
 export default function getOnsiteLocations(
   teamMembers: Feature<Point, TeamMember>[],
   airports: Feature<Point, Airport>[],
-  restrictToHomeAirports = false // TODO: only uses airports close to one of team members
+  maxResults = 10,
+  alwaysIncludeHomeAirports = true,
 ): Feature<Point, Result>[] {
   if (teamMembers.length < 2) return []
 
@@ -120,6 +121,8 @@ export default function getOnsiteLocations(
     }
   })
 
+  console.log(teamMembersList)
+
   // Computer goes brr
   const results = airportsList.flatMap((airport) => {
     // Get relationship of this airport with every member
@@ -137,15 +140,15 @@ export default function getOnsiteLocations(
     })
 
     // Eliminate airport if its close and not anyone's home airport
-    const teamMembersCloseToAirport = airportTeamMembers.filter(
-      (teamMember) => !teamMember.distance || teamMember.distance < 200
-    )
-    const homeAirportCount = teamMembersCloseToAirport.filter(
+    // const teamMembersCloseToAirport = airportTeamMembers.filter(
+    //   (teamMember) => !teamMember.distance || teamMember.distance < 200
+    // )
+    const homeAirportCount = airportTeamMembers.filter(
       (teamMember) =>
         teamMember.homeAirportCode === airport.properties.iata_code
     ).length
 
-    if (teamMembersCloseToAirport.length && !homeAirportCount) return []
+    // if (airportTeamMembers.length && !homeAirportCount) return []
 
     const totalKm = airportTeamMembers.reduce(
       (agg, teamMember) =>
@@ -169,18 +172,42 @@ export default function getOnsiteLocations(
       },
     ]
   })
-
+  
+  console.log(results.find((r) => r.properties.iata_code === 'MVQ'))
   // Do not show local airports that are not home airports
   // TODO make it configurable
-  const finalResults = results.filter(
+  let finalResults = results.filter(
     (airport) =>
       airport.properties.homeAirportCount ||
       airport.properties.type === 'large_airport'
   )
-
   finalResults.sort((a, b) => a.properties.totalCO2 - b.properties.totalCO2)
 
-  return finalResults
+
+  const homeAirports = finalResults.filter(
+    (airport) => airport.properties.homeAirportCount
+    )
+    console.log(homeAirports)
+
+  const nonHomeAirports = finalResults.filter(
+    (airport) => !airport.properties.homeAirportCount
+    )
+
+  const slicedResults = []
+  if (alwaysIncludeHomeAirports) {
+    slicedResults.push(...homeAirports.slice(0, maxResults))  
+  }
+
+  slicedResults.push(...nonHomeAirports.slice(0, maxResults - slicedResults.length))
+  slicedResults.sort((a, b) => a.properties.totalCO2 - b.properties.totalCO2)
+
+
+    
+  console.log(slicedResults)
+
+
+
+  return slicedResults
 }
 
 export function getGreatCircles(result: Feature<Point, Result>) {

@@ -21,10 +21,10 @@ export const resultsAtom = atom((get) => {
   const selectedTeamMembers = get(selectedTeamMembersAtom)
   if (!airports || !selectedTeamMembers) return null
 
-  return getOnsiteLocations(selectedTeamMembers, airports.features).slice(
-    0,
-    1000
-  )
+  // Make sure all home airports are present + 5 potentially better candidates, with an overall minimum of 15
+  const numCandidates = Math.max(15, selectedTeamMembers.length + 5)
+
+  return getOnsiteLocations(selectedTeamMembers, airports.features, numCandidates, true)
 })
 
 export const currentResultAtom = atom((get) => {

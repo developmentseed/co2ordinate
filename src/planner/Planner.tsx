@@ -121,7 +121,7 @@ export function Planner({ baseTeam }: PlannerProps) {
     [team]
   )
 
-  // const [airports, setAirports] = useState(null)
+  // TODO: Group airports by urban area
   useEffect(() => {
     fetch(
       'https://raw.githubusercontent.com/nerik/airports-streamlined/main/airports_large_medium.geojson'

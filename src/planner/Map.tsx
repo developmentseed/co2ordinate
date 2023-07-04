@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import Popup from './Popup'
 import useMapStyle from './useMapStyle'
-import { currentResultAtom, customTeamMembersAtom, selectedTeamMembersAtom } from './atoms.ts'
+import { currentResultAtom, customTeamMembersAtom, resultsAtom, selectedTeamMembersAtom } from './atoms.ts'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 
 const CandidatesMapSection = styled.div`
@@ -19,10 +19,11 @@ export default function MapWrapper({}: any) {
   const [mapLoaded, setMapLoaded] = useState(false)
   const [currentlyAddedMember, setCurrentlyAddedMember] = useState(null)
   const currentResult = useAtomValue(currentResultAtom)
+  const results = useAtomValue(resultsAtom)
   const [selectedTeamMembers, setSelectedTeamMembers] = useAtom(selectedTeamMembersAtom)
   const [customTeamMembers, setCustomTeamMembers] = useAtom(customTeamMembersAtom)
 
-  const currentStyle = useMapStyle(currentResult)
+  const currentStyle = useMapStyle(currentResult, results)
 
   useEffect(() => {
     const mbMap = mapRef.current
