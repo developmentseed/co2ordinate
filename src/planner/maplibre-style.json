@@ -7,7 +7,6 @@
             "type": "geojson"
         }
     },
-    "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
     "layers": [
         {
             "id": "land",

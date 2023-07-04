@@ -1,7 +1,7 @@
 import { Feature, featureCollection } from "@turf/helpers";
 import { Point } from "geojson";
 import { Result, getGreatCircles } from "./getOnsiteLocations";
-import style from './mapbox-style.json'
+import style from './maplibre-style.json'
 import { useMemo } from "react";
 
 export default function useMapStyle(currentResult: Feature<Point, Result>) {

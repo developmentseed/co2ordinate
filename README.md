@@ -6,8 +6,7 @@ Find the most efficient place to gather GHG-wise
 
 ## Installation
 
-Clone the repo, and copy over `.env.sample` to `.env.local`.
-You will need a `MAPBOX_TOKEN`
+Clone the repo.
 
 Then run:
 

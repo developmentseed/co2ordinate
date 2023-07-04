@@ -3,9 +3,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { render } from 'react-dom'
 import Select from 'react-select'
 import styled from 'styled-components'
-import mapboxgl, { Map } from 'mapbox-gl'
-import style from './mapbox-style.json'
-import 'mapbox-gl/dist/mapbox-gl.css'
+import maplibregl, { Map } from 'maplibre-gl'
+import style from './maplibre-style.json'
+import 'maplibre-gl/dist/maplibre-gl.css'
 import getOnsiteLocations, { Result, formatCO2 } from './getOnsiteLocations'
 import countryCodeEmoji from 'country-code-emoji'
 import useMapStyle from './useMapStyle'
@@ -185,7 +185,7 @@ export function Planner({ baseTeam }: PlannerProps) {
   const mapRef = useRef<Map>()
   const [mapLoaded, setMapLoaded] = useState(false)
   useEffect(() => {
-    const mbMap = new mapboxgl.Map({
+    const mbMap = new maplibregl.Map({
       container: mapContainer.current,
       style,
       logoPosition: 'bottom-left',
@@ -193,7 +193,6 @@ export function Planner({ baseTeam }: PlannerProps) {
       dragRotate: false,
       zoom: 0.25,
       maxZoom: 14,
-      accessToken: process.env.MAPBOX_TOKEN,
     })
 
     mapRef.current = mbMap
@@ -212,13 +211,13 @@ export function Planner({ baseTeam }: PlannerProps) {
     mbMap.on('load', () => setMapLoaded(true))
   }, [setCurrentlyAddedMember])
 
-  const popupRef = useRef<mapboxgl.Popup>()
+  const popupRef = useRef<maplibregl.Popup>()
 
   useEffect(() => {
     const mbMap = mapRef.current
     if (mapLoaded && mbMap && currentlyAddedMember) {
       if (!popupRef.current) {
-        popupRef.current = new mapboxgl.Popup({
+        popupRef.current = new maplibregl.Popup({
           closeButton: true,
           closeOnClick: false,
         })
