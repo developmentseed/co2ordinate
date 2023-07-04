@@ -5,20 +5,20 @@ import getGreatCircle from '@turf/great-circle'
 import { featureCollection } from '@turf/helpers'
 import { Feature, Point } from 'geojson'
 
-interface TeamMember {
+export interface TeamMember {
   title: string
   id: string
   location: [number, number]
 }
 
-interface Airport {
+export interface Airport {
   municipality: string
   iata_code: string
   iso_country: string
   type: 'large_airport' | 'medium_airport'
 }
 
-interface AirportTeamMember extends Feature<Point, TeamMember> {
+export interface AirportTeamMember extends Feature<Point, TeamMember> {
   distance: number | null
   co2: number | null
   homeAirportCode: string | null
