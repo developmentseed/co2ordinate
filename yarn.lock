@@ -3623,6 +3623,11 @@ side-channel@^1.0.4:
     get-intrinsic "^1.0.2"
     object-inspect "^1.9.0"
 
+simple-statistics@^7.8.3:
+  version "7.8.3"
+  resolved "https://registry.yarnpkg.com/simple-statistics/-/simple-statistics-7.8.3.tgz#62998dd7786ba14fa27b07f4f3cd498466f7961a"
+  integrity sha512-JFvMY00t6SBGtwMuJ+nqgsx9ylkMiJ5JlK9bkj8AdvniIe5615wWQYkKHXe84XtSuc40G/tlrPu0A5/NlJvv8A==
+
 simplicial-complex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/simplicial-complex/-/simplicial-complex-1.0.0.tgz#6c33a4ed69fcd4d91b7bcadd3b30b63683eae241"

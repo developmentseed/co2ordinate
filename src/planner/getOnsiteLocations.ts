@@ -4,6 +4,7 @@ import greatCircle from '@turf/great-circle'
 import getGreatCircle from '@turf/great-circle'
 import { featureCollection } from '@turf/helpers'
 import { Feature, Point } from 'geojson'
+import { ckmeans } from 'simple-statistics'
 
 export interface TeamMember {
   title: string
@@ -121,8 +122,6 @@ export default function getOnsiteLocations(
     }
   })
 
-  console.log(teamMembersList)
-
   // Computer goes brr
   const results = airportsList.flatMap((airport) => {
     // Get relationship of this airport with every member
@@ -173,7 +172,6 @@ export default function getOnsiteLocations(
     ]
   })
   
-  console.log(results.find((r) => r.properties.iata_code === 'MVQ'))
   // Do not show local airports that are not home airports
   // TODO make it configurable
   let finalResults = results.filter(
@@ -187,7 +185,6 @@ export default function getOnsiteLocations(
   const homeAirports = finalResults.filter(
     (airport) => airport.properties.homeAirportCount
     )
-    console.log(homeAirports)
 
   const nonHomeAirports = finalResults.filter(
     (airport) => !airport.properties.homeAirportCount
@@ -201,12 +198,6 @@ export default function getOnsiteLocations(
   slicedResults.push(...nonHomeAirports.slice(0, maxResults - slicedResults.length))
   slicedResults.sort((a, b) => a.properties.totalCO2 - b.properties.totalCO2)
 
-
-    
-  console.log(slicedResults)
-
-
-
   return slicedResults
 }
 
@@ -219,4 +210,26 @@ export function getGreatCircles(result: Feature<Point, Result>) {
 }
 export function formatCO2(co2: number) {
   return [(co2 / 1000).toFixed(2), 't CO₂'].join('')
+}
+
+export function getScores(results: Feature<Point, Result>[], numBreaks = 5) {
+  const allCO2s = results.map(
+    (r) => r.properties.totalCO2
+  )
+
+  const clusters = ckmeans(allCO2s, numBreaks)
+
+  const resultsWithScores = results.map((r) => {
+    const score = clusters.findIndex((c) => c.includes(r.properties.totalCO2))
+    return {
+      ...r,
+      properties: {
+        ...r.properties,
+        score,
+      },
+    }
+  })
+
+  return resultsWithScores
+ 
 }

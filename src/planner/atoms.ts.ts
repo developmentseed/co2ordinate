@@ -1,11 +1,11 @@
-import { FeatureCollection, Geometry, Point } from 'geojson'
+import { Feature, FeatureCollection, Geometry, Point } from 'geojson'
 import { atom } from 'jotai'
 import getOnsiteLocations, { Airport, TeamMember } from './getOnsiteLocations'
 import DEFAULT_TEAM from '../exampleTeam'
 
 export const airportsAtom = atom<FeatureCollection<Point, Record<string, Airport>> | null>(null)
 export const selectedAirportCodeAtom = atom('')
-export const selectedTeamMembersAtom = atom<any | null>(null)
+export const selectedTeamMembersAtom = atom<Feature<Point, TeamMember>[]>([])
 export const baseTeamMembersAtom = atom<TeamMember[]>([])
 export const customTeamMembersAtom = atom<TeamMember[]>([])
 
@@ -22,7 +22,7 @@ export const resultsAtom = atom((get) => {
   if (!airports || !selectedTeamMembers) return null
 
   // Make sure all home airports are present + 5 potentially better candidates, with an overall minimum of 15
-  const numCandidates = Math.max(15, selectedTeamMembers.length + 5)
+  const numCandidates = Math.max(15, selectedTeamMembers.length + 10)
 
   return getOnsiteLocations(selectedTeamMembers, airports.features, numCandidates, true)
 })

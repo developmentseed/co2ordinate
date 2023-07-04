@@ -5,7 +5,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import Popup from './Popup'
 import useMapStyle from './useMapStyle'
-import { currentResultAtom, customTeamMembersAtom, resultsAtom, selectedTeamMembersAtom } from './atoms.ts'
+import {
+  currentResultAtom,
+  customTeamMembersAtom,
+  resultsAtom,
+  selectedTeamMembersAtom,
+} from './atoms.ts'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 
 const CandidatesMapSection = styled.div`
@@ -20,10 +25,14 @@ export default function MapWrapper({}: any) {
   const [currentlyAddedMember, setCurrentlyAddedMember] = useState(null)
   const currentResult = useAtomValue(currentResultAtom)
   const results = useAtomValue(resultsAtom)
-  const [selectedTeamMembers, setSelectedTeamMembers] = useAtom(selectedTeamMembersAtom)
-  const [customTeamMembers, setCustomTeamMembers] = useAtom(customTeamMembersAtom)
+  const [selectedTeamMembers, setSelectedTeamMembers] = useAtom(
+    selectedTeamMembersAtom
+  )
+  const [customTeamMembers, setCustomTeamMembers] = useAtom(
+    customTeamMembersAtom
+  )
 
-  const currentStyle = useMapStyle(currentResult, results)
+  const currentStyle = useMapStyle(currentResult, results, selectedTeamMembers)
 
   useEffect(() => {
     const mbMap = mapRef.current
@@ -31,7 +40,6 @@ export default function MapWrapper({}: any) {
       mbMap.setStyle(currentStyle)
     }
   }, [mapLoaded, currentStyle])
-
 
   const addMember = useCallback(
     (name: string) => {
@@ -43,15 +51,11 @@ export default function MapWrapper({}: any) {
         },
       }
       popupRef.current.remove()
-      setCustomTeamMembers([
-        ...customTeamMembers,
-        newTeamMember,
-      ])
+      setCustomTeamMembers([...customTeamMembers, newTeamMember])
       setSelectedTeamMembers([...selectedTeamMembers, newTeamMember])
     },
     [currentlyAddedMember]
   )
-
 
   useEffect(() => {
     const mbMap = new maplibregl.Map({
@@ -77,9 +81,22 @@ export default function MapWrapper({}: any) {
       setCurrentlyAddedMember(currentTeamMember)
     })
 
-    mbMap.on('load', () => setMapLoaded(true))
+    mbMap.on('load', () => {
+      mbMap.loadImage('./house.png', function (error, image) {
+        if (error) throw error
+        mbMap.addImage('house', image, {
+          sdf: true,
+        })
+      })
+      mbMap.loadImage('./user.png', function (error, image) {
+        if (error) throw error
+        mbMap.addImage('user', image, {
+          sdf: true,
+        })
+      })
+      setMapLoaded(true)
+    })
   }, [setCurrentlyAddedMember])
-
 
   useEffect(() => {
     const mbMap = mapRef.current
@@ -102,7 +119,6 @@ export default function MapWrapper({}: any) {
   }, [mapLoaded, currentlyAddedMember])
 
   const popupRef = useRef<maplibregl.Popup>()
-
 
   return <CandidatesMapSection ref={mapContainer} />
 }
