@@ -6,6 +6,9 @@ import { useMemo } from 'react'
 
 const SCORES_RAMP = ["#FFED61","#F3BB52","#E78842","#DB5633","#CF2323"];
 
+export const AIRPORT_ICON_LAYER_ID = 'airports-icon-all'
+export const AIRPORT_LAYER_ID = 'airports-bg-all'
+
 const getBgAirportBackgroundLayer = (currentResult: Feature<Point, Result>) => {
   return {
     type: 'circle',
@@ -99,12 +102,12 @@ export default function useMapStyle(
       },
       {
         ...getBgAirportBackgroundLayer(currentResult),
-        id: 'airports-bg-all',
+        id: AIRPORT_LAYER_ID,
         filter: ["!=", ["get", "iata_code"], currentResult.properties.iata_code],
       },
       {
         ...getIconAirportLayer(currentResult),
-        id: 'airports-icon-all',
+        id: AIRPORT_ICON_LAYER_ID,
         filter: ["!=", ["get", "iata_code"], currentResult.properties.iata_code],
       },
       {

@@ -1,14 +1,15 @@
-import { render } from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import maplibregl, { Map } from 'maplibre-gl'
 import style from './maplibre-style.json'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import Popup from './Popup'
-import useMapStyle from './useMapStyle'
+import useMapStyle, { AIRPORT_ICON_LAYER_ID, AIRPORT_LAYER_ID } from './useMapStyle'
 import {
   currentResultAtom,
   customTeamMembersAtom,
   resultsAtom,
+  selectedAirportCodeAtom,
   selectedTeamMembersAtom,
 } from './atoms.ts'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
@@ -22,6 +23,7 @@ export default function MapWrapper({}: any) {
   const mapContainer = useRef()
   const mapRef = useRef<Map>()
   const [mapLoaded, setMapLoaded] = useState(false)
+  const [selectedAirportCode, setSelectedAirportCode] = useAtom(selectedAirportCodeAtom)
   const [currentlyAddedMember, setCurrentlyAddedMember] = useState(null)
   const currentResult = useAtomValue(currentResultAtom)
   const results = useAtomValue(resultsAtom)
@@ -70,7 +72,19 @@ export default function MapWrapper({}: any) {
 
     mapRef.current = mbMap
 
+    const getAirportAtCursor = (e) => {
+      const features = mbMap.queryRenderedFeatures(e.point)
+      const airport = features.find((f) => [AIRPORT_ICON_LAYER_ID, AIRPORT_LAYER_ID].includes(f.layer.id))
+      return airport
+    }
+
     mbMap.on('click', (e) => {
+      const airport = getAirportAtCursor(e)
+      if (airport) {
+        setSelectedAirportCode(airport.properties.iata_code)
+        return
+      }
+
       const currentTeamMember = {
         type: 'Feature',
         geometry: {
@@ -79,6 +93,15 @@ export default function MapWrapper({}: any) {
         },
       }
       setCurrentlyAddedMember(currentTeamMember)
+    })
+
+    mbMap.on('mousemove', (e) => {
+      const airport = getAirportAtCursor(e)
+      if (airport) {
+        mbMap.getCanvas().style.cursor = 'pointer'
+        return
+      }
+      mbMap.getCanvas().style.cursor = 'crosshair'
     })
 
     mbMap.on('load', () => {
@@ -109,7 +132,8 @@ export default function MapWrapper({}: any) {
       }
 
       const popupNode = document.createElement('div')
-      render(<Popup onSubmit={addMember} />, popupNode)
+      const root = createRoot(popupNode); 
+      root.render(<Popup onSubmit={addMember} />);
 
       popupRef.current
         .setLngLat(currentlyAddedMember?.geometry.coordinates)
