@@ -1,15 +1,13 @@
 import { Feature, Point } from 'geojson'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { render } from 'react-dom'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import Select from 'react-select'
 import styled from 'styled-components'
-import mapboxgl, { Map } from 'mapbox-gl'
-import style from './mapbox-style.json'
-import 'mapbox-gl/dist/mapbox-gl.css'
-import getOnsiteLocations, { Result, formatCO2 } from './getOnsiteLocations'
+import 'maplibre-gl/dist/maplibre-gl.css'
 import countryCodeEmoji from 'country-code-emoji'
-import useMapStyle from './useMapStyle'
-import Popup from './Popup'
+import MapWrapper from './Map'
+import { airportsAtom, baseTeamMembersAtom, resultsAtom, selectedAirportCodeAtom, selectedTeamMembersAtom, teamAtom } from './atoms.ts'
+import { Result, formatCO2 } from './getOnsiteLocations'
 
 type TeamMemberProps = {
   name: string
@@ -34,10 +32,7 @@ const CandidatesTableSection = styled.div`
   flex: 1;
   overflow: scroll;
 `
-const CandidatesMapSection = styled.div`
-  min-height: 20rem;
-  flex: 0 0 40vw;
-`
+
 const Table = styled.table`
   width: 100%;
   tr > th {
@@ -69,32 +64,16 @@ const Footer = styled.div`
 `
 
 export function Planner({ baseTeam }: PlannerProps) {
-  const [currentlyAddedMember, setCurrentlyAddedMember] = useState(null)
-  const [customTeamMembers, setCustomTeamMembers] = useState([])
-  const [selectedTeamMembers, setSelectedTeamMembers] = useState([])
+  const setAirports = useSetAtom(airportsAtom)
+  const setBaseTeamMembers = useSetAtom(baseTeamMembersAtom)
+  const [selectedTeamMembers, setSelectedTeamMembers] = useAtom(selectedTeamMembersAtom)
+  const [selectedAirportCode, setSelectedAirportCode] = useAtom(selectedAirportCodeAtom)
+  const results = useAtomValue(resultsAtom)
+  const team = useAtomValue(teamAtom)
 
-  const team = useMemo(() => {
-    return [...baseTeam, ...customTeamMembers]
-  }, [baseTeam, customTeamMembers])
-
-  const addMember = useCallback(
-    (name: string) => {
-      setCurrentlyAddedMember(null)
-      const newTeamMember = {
-        ...currentlyAddedMember,
-        properties: {
-          name,
-        },
-      }
-      setCustomTeamMembers([
-        ...customTeamMembers,
-        newTeamMember,
-      ])
-      popupRef.current.remove()
-      setSelectedTeamMembers([...selectedTeamMembers, newTeamMember])
-    },
-    [currentlyAddedMember, selectedTeamMembers, customTeamMembers]
-  )
+  useEffect(() => {
+    setBaseTeamMembers(baseTeam)
+  }, [baseTeam])
 
   const selectEntries = useMemo(() => {
     if (!team?.length) return []
@@ -142,7 +121,7 @@ export function Planner({ baseTeam }: PlannerProps) {
     [team]
   )
 
-  const [airports, setAirports] = useState(null)
+  // TODO: Group airports by urban area
   useEffect(() => {
     fetch(
       'https://raw.githubusercontent.com/nerik/airports-streamlined/main/airports_large_medium.geojson'
@@ -153,95 +132,25 @@ export function Planner({ baseTeam }: PlannerProps) {
       })
   }, [])
 
-  const results = useMemo(() => {
-    if (!airports) return null
 
-    return getOnsiteLocations(selectedTeamMembers, airports.features).slice(
-      0,
-      1000
-    )
-  }, [selectedTeamMembers, airports])
-
-  const [selectedResult, setSelectedResult] = useState(null)
 
   // Set selected result the first time, once we have results
   useEffect(() => {
-    if (!selectedResult && results?.length) {
-      setSelectedResult(results[0].properties.iata_code)
+    if (!selectedAirportCode && results?.length) {
+      setSelectedAirportCode(results[0].properties.iata_code)
     }
-  }, [selectedResult, results])
+  }, [selectedAirportCode, results])
 
   // Select first result every time results change
   useEffect(() => {
-    if (results?.length) setSelectedResult(results[0].properties.iata_code)
+    if (results?.length) setSelectedAirportCode(results[0].properties.iata_code)
   }, [results])
 
   const currentResult: Feature<Point, Result> = useMemo(() => {
-    if (!selectedResult || !results) return null
-    return results.find((r) => r.properties.iata_code === selectedResult)
-  }, [results, selectedResult])
+    if (!selectedAirportCode || !results) return null
+    return results.find((r) => r.properties.iata_code === selectedAirportCode)
+  }, [results, selectedAirportCode])
 
-  const mapContainer = useRef()
-  const mapRef = useRef<Map>()
-  const [mapLoaded, setMapLoaded] = useState(false)
-  useEffect(() => {
-    const mbMap = new mapboxgl.Map({
-      container: mapContainer.current,
-      style,
-      logoPosition: 'bottom-left',
-      pitchWithRotate: false,
-      dragRotate: false,
-      zoom: 0.25,
-      maxZoom: 14,
-      accessToken: process.env.MAPBOX_TOKEN,
-    })
-
-    mapRef.current = mbMap
-
-    mbMap.on('click', (e) => {
-      const currentTeamMember = {
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [e.lngLat.lng, e.lngLat.lat],
-        },
-      }
-      setCurrentlyAddedMember(currentTeamMember)
-    })
-
-    mbMap.on('load', () => setMapLoaded(true))
-  }, [setCurrentlyAddedMember])
-
-  const popupRef = useRef<mapboxgl.Popup>()
-
-  useEffect(() => {
-    const mbMap = mapRef.current
-    if (mapLoaded && mbMap && currentlyAddedMember) {
-      if (!popupRef.current) {
-        popupRef.current = new mapboxgl.Popup({
-          closeButton: true,
-          closeOnClick: false,
-        })
-      }
-
-      const popupNode = document.createElement('div')
-      render(<Popup onSubmit={addMember} />, popupNode)
-
-      popupRef.current
-        .setLngLat(currentlyAddedMember?.geometry.coordinates)
-        .setDOMContent(popupNode)
-      popupRef.current.addTo(mbMap)
-    }
-  }, [mapLoaded, currentlyAddedMember])
-
-  const currentStyle = useMapStyle(currentResult)
-
-  useEffect(() => {
-    const mbMap = mapRef.current
-    if (mapLoaded && mbMap) {
-      mbMap.setStyle(currentStyle)
-    }
-  }, [mapLoaded, currentStyle])
 
   const equivalent = useMemo(() => {
     if (!currentResult) return null
@@ -312,10 +221,10 @@ export function Planner({ baseTeam }: PlannerProps) {
                   <ResultRow
                     key={result.properties.iata_code}
                     onClick={
-                      () => setSelectedResult(result.properties.iata_code)
+                      () => setSelectedAirportCode(result.properties.iata_code)
                       /* eslint-disable-next-line */
                     }
-                    selected={result.properties.iata_code === selectedResult}
+                    selected={result.properties.iata_code === selectedAirportCode}
                   >
                     <td>
                       {result.properties.municipality} (
@@ -340,7 +249,7 @@ export function Planner({ baseTeam }: PlannerProps) {
             'Please select at least 2 team members to show results.'
           )}
         </CandidatesTableSection>
-        <CandidatesMapSection ref={mapContainer} />
+        <MapWrapper />
       </Candidates>
       {currentResult && (
         <TeamMembersSection>

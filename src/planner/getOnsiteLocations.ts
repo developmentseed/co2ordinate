@@ -4,21 +4,22 @@ import greatCircle from '@turf/great-circle'
 import getGreatCircle from '@turf/great-circle'
 import { featureCollection } from '@turf/helpers'
 import { Feature, Point } from 'geojson'
+import { ckmeans } from 'simple-statistics'
 
-interface TeamMember {
+export interface TeamMember {
   title: string
   id: string
   location: [number, number]
 }
 
-interface Airport {
+export interface Airport {
   municipality: string
   iata_code: string
   iso_country: string
   type: 'large_airport' | 'medium_airport'
 }
 
-interface AirportTeamMember extends Feature<Point, TeamMember> {
+export interface AirportTeamMember extends Feature<Point, TeamMember> {
   distance: number | null
   co2: number | null
   homeAirportCode: string | null
@@ -56,7 +57,8 @@ function getCO2(distKm: number) {
 export default function getOnsiteLocations(
   teamMembers: Feature<Point, TeamMember>[],
   airports: Feature<Point, Airport>[],
-  restrictToHomeAirports = false // TODO: only uses airports close to one of team members
+  maxResults = 10,
+  alwaysIncludeHomeAirports = true,
 ): Feature<Point, Result>[] {
   if (teamMembers.length < 2) return []
 
@@ -137,15 +139,15 @@ export default function getOnsiteLocations(
     })
 
     // Eliminate airport if its close and not anyone's home airport
-    const teamMembersCloseToAirport = airportTeamMembers.filter(
-      (teamMember) => !teamMember.distance || teamMember.distance < 200
-    )
-    const homeAirportCount = teamMembersCloseToAirport.filter(
+    // const teamMembersCloseToAirport = airportTeamMembers.filter(
+    //   (teamMember) => !teamMember.distance || teamMember.distance < 200
+    // )
+    const homeAirportCount = airportTeamMembers.filter(
       (teamMember) =>
         teamMember.homeAirportCode === airport.properties.iata_code
     ).length
 
-    if (teamMembersCloseToAirport.length && !homeAirportCount) return []
+    // if (airportTeamMembers.length && !homeAirportCount) return []
 
     const totalKm = airportTeamMembers.reduce(
       (agg, teamMember) =>
@@ -169,18 +171,34 @@ export default function getOnsiteLocations(
       },
     ]
   })
-
+  
   // Do not show local airports that are not home airports
   // TODO make it configurable
-  const finalResults = results.filter(
+  let finalResults = results.filter(
     (airport) =>
       airport.properties.homeAirportCount ||
       airport.properties.type === 'large_airport'
   )
-
   finalResults.sort((a, b) => a.properties.totalCO2 - b.properties.totalCO2)
 
-  return finalResults
+
+  const homeAirports = finalResults.filter(
+    (airport) => airport.properties.homeAirportCount
+    )
+
+  const nonHomeAirports = finalResults.filter(
+    (airport) => !airport.properties.homeAirportCount
+    )
+
+  const slicedResults = []
+  if (alwaysIncludeHomeAirports) {
+    slicedResults.push(...homeAirports.slice(0, maxResults))  
+  }
+
+  slicedResults.push(...nonHomeAirports.slice(0, maxResults - slicedResults.length))
+  slicedResults.sort((a, b) => a.properties.totalCO2 - b.properties.totalCO2)
+
+  return slicedResults
 }
 
 export function getGreatCircles(result: Feature<Point, Result>) {
@@ -192,4 +210,26 @@ export function getGreatCircles(result: Feature<Point, Result>) {
 }
 export function formatCO2(co2: number) {
   return [(co2 / 1000).toFixed(2), 't CO₂'].join('')
+}
+
+export function getScores(results: Feature<Point, Result>[], numBreaks = 5) {
+  const allCO2s = results.map(
+    (r) => r.properties.totalCO2
+  )
+
+  const clusters = ckmeans(allCO2s, numBreaks)
+
+  const resultsWithScores = results.map((r) => {
+    const score = clusters.findIndex((c) => c.includes(r.properties.totalCO2))
+    return {
+      ...r,
+      properties: {
+        ...r.properties,
+        score,
+      },
+    }
+  })
+
+  return resultsWithScores
+ 
 }
