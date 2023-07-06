@@ -1,12 +1,6 @@
 import { Planner } from './planner/Planner'
 import DEFAULT_TEAM from './exampleTeam'
-import {
-  DevseedUiThemeProvider,
-  themeVal,
-  glsp,
-  media,
-  divide,
-} from '@devseed-ui/theme-provider'
+import { DevseedUiThemeProvider, themeVal } from '@devseed-ui/theme-provider'
 import theme from './theme'
 import styled, { css } from 'styled-components'
 import { Button } from '@devseed-ui/button'
@@ -25,40 +19,22 @@ const PageBody = styled.div`
   flex-direction: column;
 `
 
-const innerSpacingCss = (size) => css`
-  gap: ${glsp(themeVal(`layout.gap.${size}`))};
-  padding: ${glsp(
-    divide(themeVal(`layout.gap.${size}`), 2),
-    themeVal(`layout.gap.${size}`)
-  )};
-`
-
 const Header = styled.header`
   display: flex;
   justify-content: space-between;
+  height: 50px;
+  position: sticky;
 `
 
-export const PageMainContent = styled.main`
-  ${innerSpacingCss('xsmall')}
+const PageMainContent = styled.main`
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+`
 
-  ${media.smallUp`
-    ${innerSpacingCss('xsmall')}
-  `}
-
-  ${media.mediumUp`
-    ${innerSpacingCss('medium')}
-  `}
-
-  ${media.largeUp`
-    ${innerSpacingCss('large')}
-  `}
-
-  ${media.xlargeUp`
-    ${innerSpacingCss('xlarge')}
-  `}
+const PlannerWrapper = styled.div`
+  position: relative;
+  height: calc(100vh - 50px);
 `
 
 export function App() {
@@ -79,7 +55,9 @@ export function App() {
                 Add your team (soon)
               </Button>
             </Header>
+            <PlannerWrapper>
             <Planner baseTeam={DEFAULT_TEAM} />
+            </PlannerWrapper>
           </PageMainContent>
         </PageBody>
       </Page>

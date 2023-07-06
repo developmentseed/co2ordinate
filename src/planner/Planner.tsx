@@ -5,8 +5,15 @@ import Select from 'react-select'
 import styled from 'styled-components'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import countryCodeEmoji from 'country-code-emoji'
-import MapWrapper from './Map'
-import { airportsAtom, baseTeamMembersAtom, resultsAtom, selectedAirportCodeAtom, selectedTeamMembersAtom, teamAtom } from './atoms.ts'
+import Map from './Map'
+import {
+  airportsAtom,
+  baseTeamMembersAtom,
+  resultsAtom,
+  selectedAirportCodeAtom,
+  selectedTeamMembersAtom,
+  teamAtom,
+} from './atoms.ts'
 import { Result, formatCO2 } from './getOnsiteLocations'
 
 type TeamMemberProps = {
@@ -21,16 +28,49 @@ type PlannerProps = {
 
 const THEME_COLOR = '#ff002c'
 
-const Candidates = styled.div`
+const MapWrapper = styled.div`
+  height: 100%;
+  width: 100%;
+  position: relative;
+`
+
+const Overlay = styled.div`
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  padding: 2rem;
+  pointer-events: none;
+`
+
+const Panel = styled.div`
+  background: white;
+  min-width: 400px;
+  max-width: 30vw;
+  margin-bottom: 2rem;
+  pointer-events: all;
+  padding: 1rem;
+`
+
+const TeamSelector = styled(Panel)``
+
+const TeamMembers = styled(Panel)`
+  max-height: 40vh;
+  overflow: scroll;
+`
+
+const Candidates = styled(Panel)`
+  background: white;
   display: flex;
   justify-content: center;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
 `
 
 const CandidatesTableSection = styled.div`
-  max-height: 0.5vh;
-  min-height: 540px;
   flex: 1;
-  overflow: scroll;
 `
 
 const Table = styled.table`
@@ -48,9 +88,6 @@ const ResultRow = styled.tr`
   }
 `
 
-const TeamMembersSection = styled.div`
-  max-width: 600px;
-`
 const TeamMembersRow = styled.tr`
   color: ${({ disabled }) => (disabled ? 'grey' : 'inherit')};
 `
@@ -66,8 +103,12 @@ const Footer = styled.div`
 export function Planner({ baseTeam }: PlannerProps) {
   const setAirports = useSetAtom(airportsAtom)
   const setBaseTeamMembers = useSetAtom(baseTeamMembersAtom)
-  const [selectedTeamMembers, setSelectedTeamMembers] = useAtom(selectedTeamMembersAtom)
-  const [selectedAirportCode, setSelectedAirportCode] = useAtom(selectedAirportCodeAtom)
+  const [selectedTeamMembers, setSelectedTeamMembers] = useAtom(
+    selectedTeamMembersAtom
+  )
+  const [selectedAirportCode, setSelectedAirportCode] = useAtom(
+    selectedAirportCodeAtom
+  )
   const results = useAtomValue(resultsAtom)
   const team = useAtomValue(teamAtom)
 
@@ -132,8 +173,6 @@ export function Planner({ baseTeam }: PlannerProps) {
       })
   }, [])
 
-
-
   // Set selected result the first time, once we have results
   useEffect(() => {
     if (!selectedAirportCode && results?.length) {
@@ -150,7 +189,6 @@ export function Planner({ baseTeam }: PlannerProps) {
     if (!selectedAirportCode || !results) return null
     return results.find((r) => r.properties.iata_code === selectedAirportCode)
   }, [results, selectedAirportCode])
-
 
   const equivalent = useMemo(() => {
     if (!currentResult) return null
@@ -188,119 +226,140 @@ export function Planner({ baseTeam }: PlannerProps) {
 
   return (
     <>
-      <Select
-        isMulti
-        placeholder={
-          selectEntries.length
-            ? 'Select at least 2 team members...'
-            : 'Loading...'
-        }
-        name="colors"
-        options={selectEntries}
-        className="basic-multi-select"
-        classNamePrefix="select"
-        getOptionLabel={(option) => option.properties.name}
-        getOptionValue={(option) => option.properties.name}
-        onChange={onSelectTeamMembers}
-        value={selectedTeamMembers}
-      />
-      <Candidates>
-        <CandidatesTableSection>
-          {' '}
-          {results?.length ? (
-            <Table>
-              <tbody>
-                <tr>
-                  <th>Name/IATA code</th>
-                  <th>Country</th>
-                  <th>Total CO₂</th>
-                  <th>Total dist</th>
-                  <th>Home?</th>
-                </tr>
-                {results?.map((result) => (
-                  <ResultRow
-                    key={result.properties.iata_code}
-                    onClick={
-                      () => setSelectedAirportCode(result.properties.iata_code)
-                      /* eslint-disable-next-line */
-                    }
-                    selected={result.properties.iata_code === selectedAirportCode}
-                  >
-                    <td>
-                      {result.properties.municipality} (
-                      {result.properties.iata_code})
-                    </td>
-                    <td>
-                      {result.properties.iso_country}{' '}
-                      {countryCodeEmoji(result.properties.iso_country)}{' '}
-                    </td>
-                    <td>{formatCO2(result.properties.totalCO2)}</td>
-                    <td>{Math.round(result.properties.totalKm)} km</td>
-                    <td>
-                      {result.properties.homeAirportCount
-                        ? '🏡'.repeat(result.properties.homeAirportCount)
-                        : ''}
-                    </td>
-                  </ResultRow>
-                ))}
-              </tbody>
-            </Table>
-          ) : (
-            'Please select at least 2 team members to show results.'
-          )}
-        </CandidatesTableSection>
-        <MapWrapper />
-      </Candidates>
-      {currentResult && (
-        <TeamMembersSection>
-          <h2>
-            Travelling to {currentResult.properties.municipality}:{' '}
-            {currentResult.properties.airportTeamMembers.length} people -{' '}
-            {formatCO2(currentResult.properties.totalCO2)}
-          </h2>
-          {equivalent && (
-            <Equivalent>
-              {equivalent[0]} (<a href={equivalent[1]}>source</a>)
-            </Equivalent>
-          )}
+      <MapWrapper>
+        <Map />
+      </MapWrapper>
+      <Overlay>
+        <TeamSelector>
+          <ul>
+            <li>Click on the map to set participant locations</li>
+            <li>
+              <input placeholder="Search locations to set points"></input>
+            </li>
+            <li>Upload CSV (must include lat, lon columns)</li>
+          </ul>
+        </TeamSelector>
 
-          <Table>
-            <tbody>
-              <tr>
-                <th>Name</th>
-                <th>CO₂</th>
-                <th>Total dist</th>
-              </tr>
-              {currentResult.properties.airportTeamMembers.map((atm) => (
-                <TeamMembersRow
-                  key={atm.properties.name}
-                  disabled={atm.distance === null}
-                  title={
-                    atm.distance === null
-                      ? 'Team member does not have coordinates'
-                      : ''
-                  }
-                >
-                  <td>{atm.properties.name}</td>
-                  <td>{atm.co2 !== null ? formatCO2(atm.co2) : '-'}</td>
-                  <td>
-                    {atm.distance !== null ? Math.round(atm.distance) : '-'} km
-                  </td>
-                </TeamMembersRow>
-              ))}
-            </tbody>
-          </Table>
-          <Footer>
-            ⚠️ Those numbers are estimates based on kg CO₂/km averages, which
-            may be less accurate than the industry-standard based on other
-            factors such as payload, carrier type, layovers, etc.
-            <br />
-            <a href="https://github.com/developmentseed/meet-and-greta">
-              Discuss this prototype on the Github repo
-            </a>
-          </Footer>
-        </TeamMembersSection>
-      )}
+        <TeamMembers>
+          <Select
+            isMulti
+            placeholder={
+              selectEntries.length
+                ? 'Select at least 2 team members...'
+                : 'Loading...'
+            }
+            name="colors"
+            options={selectEntries}
+            className="basic-multi-select"
+            classNamePrefix="select"
+            getOptionLabel={(option) => option.properties.name}
+            getOptionValue={(option) => option.properties.name}
+            onChange={onSelectTeamMembers}
+            value={selectedTeamMembers}
+          />
+          {currentResult && (
+            <>
+              <Table>
+                <tbody>
+                  <tr>
+                    <th>Name</th>
+                    <th>CO₂</th>
+                    <th>Total dist</th>
+                  </tr>
+                  {currentResult.properties.airportTeamMembers.map((atm) => (
+                    <TeamMembersRow
+                      key={atm.properties.name}
+                      disabled={atm.distance === null}
+                      title={
+                        atm.distance === null
+                          ? 'Team member does not have coordinates'
+                          : ''
+                      }
+                    >
+                      <td>{atm.properties.name}</td>
+                      <td>{atm.co2 !== null ? formatCO2(atm.co2) : '-'}</td>
+                      <td>
+                        {atm.distance !== null ? Math.round(atm.distance) : '-'}{' '}
+                        km
+                      </td>
+                    </TeamMembersRow>
+                  ))}
+                </tbody>
+              </Table>
+              <Footer>
+                ⚠️ Those numbers are estimates based on kg CO₂/km averages,
+                which may be less accurate than the industry-standard based on
+                other factors such as payload, carrier type, layovers, etc.
+                <br />
+                <a href="https://github.com/developmentseed/meet-and-greta">
+                  Discuss this prototype on the Github repo
+                </a>
+              </Footer>
+            </>
+          )}
+        </TeamMembers>
+
+        <Candidates>
+          <CandidatesTableSection>
+            {currentResult && (
+              <h2>
+                Travelling to {currentResult.properties.municipality}:{' '}
+                {currentResult.properties.airportTeamMembers.length} people -{' '}
+                {formatCO2(currentResult.properties.totalCO2)}
+              </h2>
+            )}
+            {equivalent && (
+              <Equivalent>
+                {equivalent[0]} (<a href={equivalent[1]}>source</a>)
+              </Equivalent>
+            )}{' '}
+            {results?.length ? (
+              <Table>
+                <tbody>
+                  <tr>
+                    <th>Name/IATA code</th>
+                    <th>Country</th>
+                    <th>Total CO₂</th>
+                    <th>Total dist</th>
+                    <th>Home?</th>
+                  </tr>
+                  {results?.map((result) => (
+                    <ResultRow
+                      key={result.properties.iata_code}
+                      onClick={
+                        () =>
+                          setSelectedAirportCode(result.properties.iata_code)
+                        /* eslint-disable-next-line */
+                      }
+                      selected={
+                        result.properties.iata_code === selectedAirportCode
+                      }
+                    >
+                      <td>
+                        {result.properties.municipality} (
+                        {result.properties.iata_code})
+                      </td>
+                      <td>
+                        {result.properties.iso_country}{' '}
+                        {countryCodeEmoji(result.properties.iso_country)}{' '}
+                      </td>
+                      <td>{formatCO2(result.properties.totalCO2)}</td>
+                      <td>{Math.round(result.properties.totalKm)} km</td>
+                      <td>
+                        {result.properties.homeAirportCount
+                          ? '🏡'.repeat(result.properties.homeAirportCount)
+                          : ''}
+                      </td>
+                    </ResultRow>
+                  ))}
+                </tbody>
+              </Table>
+            ) : (
+              'Please select at least 2 team members to show results.'
+            )}
+          </CandidatesTableSection>
+        </Candidates>
+      </Overlay>
     </>
   )
 }

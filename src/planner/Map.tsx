@@ -12,10 +12,10 @@ import {
   selectedAirportCodeAtom,
   selectedTeamMembersAtom,
 } from './atoms.ts'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 
 const CandidatesMapSection = styled.div`
-  min-height: 20rem;
+  height: 100%;
   flex: 0 0 40vw;
 `
 
