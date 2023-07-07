@@ -1,10 +1,9 @@
 import { Feature, Point } from 'geojson'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import Select from 'react-select'
 import styled from 'styled-components'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import countryCodeEmoji from 'country-code-emoji'
 import Map from './Map'
 import {
   airportsAtom,
@@ -14,9 +13,10 @@ import {
   selectedTeamMembersAtom,
   teamAtom,
 } from './atoms.ts'
-import { Result, formatCO2 } from './getOnsiteLocations'
+import { Result, formatCO2, getScores } from '../lib/getOnsiteLocations'
 import { currentResultAtom } from './atoms.ts'
-import useEquivalent from './useEquivalent'
+import useEquivalent from '../hooks/useEquivalent'
+import { Candidates } from './Candidates'
 
 type TeamMemberProps = {
   name: string
@@ -27,8 +27,6 @@ type TeamMember = Feature<Point, TeamMemberProps>
 type PlannerProps = {
   baseTeam: TeamMember[]
 }
-
-const THEME_COLOR = '#ff002c'
 
 const MapWrapper = styled.div`
   height: 100%;
@@ -67,7 +65,7 @@ const TeamMembers = styled(Panel)`
   overflow: scroll;
 `
 
-const Candidates = styled(Panel)`
+const CandidatesWrapper = styled(Panel)`
   background: white;
   justify-content: center;
   width: 100%;
@@ -75,36 +73,18 @@ const Candidates = styled(Panel)`
   max-width: 100%;
 `
 
-const CandidatesTableSection = styled.div`
-  flex: 1;
-`
-
-const Table = styled.table`
+export const Table = styled.table`
   width: 100%;
   tr > th {
     text-align: left;
   }
 `
-const ResultRow = styled.tr`
-  cursor: pointer;
-  background: ${({ selected }) => (selected ? THEME_COLOR : 'transparent')};
-  color: ${({ selected }) => (selected ? 'white' : 'inherit')};
-  :hover {
-    background: #ddd;
-  }
-`
+
 
 const TeamMembersRow = styled.tr`
   color: ${({ disabled }) => (disabled ? 'grey' : 'inherit')};
 `
 
-const Equivalent = styled.p`
-  margin: 0.5rem 0 1rem;
-`
-
-const Footer = styled.div`
-  margin-top: 2rem;
-`
 
 export function Planner({ baseTeam }: PlannerProps) {
   const setAirports = useSetAtom(airportsAtom)
@@ -214,8 +194,10 @@ export function Planner({ baseTeam }: PlannerProps) {
     }).toSorted((a, b) => a.properties.name.localeCompare(b.properties.name))
 
 
-    return withSelected
+    return getScores(withSelected)
   }, [team, currentResult])
+
+  console.log(teamWithSelected)
 
   // TODO: Group airports by urban area
   useEffect(() => {
@@ -240,7 +222,7 @@ export function Planner({ baseTeam }: PlannerProps) {
     if (results?.length) setSelectedAirportCode(results[0].properties.iata_code)
   }, [results])
 
-  const equivalent = useEquivalent(currentResult)
+
 
   return (
     <>
@@ -333,73 +315,10 @@ export function Planner({ baseTeam }: PlannerProps) {
           )}
         </TeamMembers>
 
-        {!!results?.length && (
-          <Candidates>
-            <CandidatesTableSection>
-              {currentResult && (
-                <h2>
-                  Travelling to {currentResult.properties.municipality}:{' '}
-                  {currentResult.properties.airportTeamMembers.length} people -{' '}
-                  {formatCO2(currentResult.properties.totalCO2)}
-                </h2>
-              )}
-              {equivalent && (
-                <Equivalent>
-                  {equivalent[0]} (<a href={equivalent[1]}>source</a>)
-                </Equivalent>
-              )}{' '}
-              <Table>
-                <tbody>
-                  <tr>
-                    <th>Name/IATA code</th>
-                    <th>Country</th>
-                    <th>Total CO₂</th>
-                    <th>Total dist</th>
-                    <th>Home?</th>
-                  </tr>
-                  {results?.map((result) => (
-                    <ResultRow
-                      key={result.properties.iata_code}
-                      onClick={
-                        () =>
-                          setSelectedAirportCode(result.properties.iata_code)
-                        /* eslint-disable-next-line */
-                      }
-                      selected={
-                        result.properties.iata_code === selectedAirportCode
-                      }
-                    >
-                      <td>
-                        {result.properties.municipality} (
-                        {result.properties.iata_code})
-                      </td>
-                      <td>
-                        {result.properties.iso_country}{' '}
-                        {countryCodeEmoji(result.properties.iso_country)}{' '}
-                      </td>
-                      <td>{formatCO2(result.properties.totalCO2)}</td>
-                      <td>{Math.round(result.properties.totalKm)} km</td>
-                      <td>
-                        {result.properties.homeAirportCount
-                          ? '🏡'.repeat(result.properties.homeAirportCount)
-                          : ''}
-                      </td>
-                    </ResultRow>
-                  ))}
-                </tbody>
-              </Table>
-            </CandidatesTableSection>
-            <Footer>
-                ⚠️ Those numbers are estimates based on kg CO₂/km averages,
-                which may be less accurate than the industry-standard based on
-                other factors such as payload, carrier type, layovers, etc.
-                <br />
-                <a href="https://github.com/developmentseed/meet-and-greta">
-                  Discuss this prototype on the Github repo
-                </a>
-              </Footer>
-          </Candidates>
-        )}
+      <CandidatesWrapper>
+        <Candidates />
+      </CandidatesWrapper>
+
       </Overlay>
     </>
   )

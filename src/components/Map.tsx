@@ -1,10 +1,10 @@
 import { createRoot } from 'react-dom/client'
 import maplibregl, { Map } from 'maplibre-gl'
-import style from './maplibre-style.json'
+import style from '../style/maplibre-style.json'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import Popup from './Popup'
-import useMapStyle, { AIRPORT_ICON_LAYER_ID, AIRPORT_LAYER_ID } from './useMapStyle'
+import useMapStyle, { AIRPORT_ICON_LAYER_ID, AIRPORT_LAYER_ID } from '../hooks/useMapStyle'
 import {
   currentResultAtom,
   customTeamMembersAtom,

@@ -1,4 +1,4 @@
-import { Planner } from './planner/Planner'
+import { Planner } from './components/Planner'
 import DEFAULT_TEAM from './exampleTeam'
 import { DevseedUiThemeProvider, themeVal } from '@devseed-ui/theme-provider'
 import theme from './theme'

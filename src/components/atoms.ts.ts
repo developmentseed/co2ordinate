@@ -1,6 +1,6 @@
 import { Feature, FeatureCollection, Geometry, Point } from 'geojson'
 import { atom } from 'jotai'
-import getOnsiteLocations, { Airport, TeamMember } from './getOnsiteLocations'
+import getOnsiteLocations, { Airport, TeamMember } from '../lib/getOnsiteLocations'
 import DEFAULT_TEAM from '../exampleTeam'
 
 export const airportsAtom = atom<FeatureCollection<Point, Record<string, Airport>> | null>(null)
