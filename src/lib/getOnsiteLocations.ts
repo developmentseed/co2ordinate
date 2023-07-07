@@ -58,7 +58,7 @@ export default function getOnsiteLocations(
   teamMembers: Feature<Point, TeamMember>[],
   airports: Feature<Point, Airport>[],
   maxResults = 10,
-  alwaysIncludeHomeAirports = true,
+  alwaysIncludeHomeAirports = true
 ): Feature<Point, Result>[] {
   if (teamMembers.length < 2) return []
 
@@ -171,7 +171,7 @@ export default function getOnsiteLocations(
       },
     ]
   })
-  
+
   // Do not show local airports that are not home airports
   // TODO make it configurable
   let finalResults = results.filter(
@@ -181,24 +181,27 @@ export default function getOnsiteLocations(
   )
   finalResults.sort((a, b) => a.properties.totalCO2 - b.properties.totalCO2)
 
-
   const homeAirports = finalResults.filter(
     (airport) => airport.properties.homeAirportCount
-    )
+  )
 
   const nonHomeAirports = finalResults.filter(
     (airport) => !airport.properties.homeAirportCount
-    )
+  )
 
   const slicedResults = []
   if (alwaysIncludeHomeAirports) {
-    slicedResults.push(...homeAirports.slice(0, maxResults))  
+    slicedResults.push(...homeAirports.slice(0, maxResults))
   }
 
-  slicedResults.push(...nonHomeAirports.slice(0, maxResults - slicedResults.length))
+  slicedResults.push(
+    ...nonHomeAirports.slice(0, maxResults - slicedResults.length)
+  )
   slicedResults.sort((a, b) => a.properties.totalCO2 - b.properties.totalCO2)
 
-  return slicedResults
+  const withScores = getScores(slicedResults)
+
+  return withScores
 }
 
 export function getGreatCircles(result: Feature<Point, Result>) {
@@ -213,9 +216,7 @@ export function formatCO2(co2: number) {
 }
 
 export function getScores(results: Feature<Point, Result>[], numBreaks = 5) {
-  const allCO2s = results.map(
-    (r) => r.properties.totalCO2
-  )
+  const allCO2s = results.map((r) => r.properties.totalCO2)
 
   const clusters = ckmeans(allCO2s, numBreaks)
 
@@ -231,5 +232,4 @@ export function getScores(results: Feature<Point, Result>[], numBreaks = 5) {
   })
 
   return resultsWithScores
- 
 }

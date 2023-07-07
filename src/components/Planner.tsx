@@ -13,9 +13,8 @@ import {
   selectedTeamMembersAtom,
   teamAtom,
 } from './atoms.ts'
-import { Result, formatCO2, getScores } from '../lib/getOnsiteLocations'
+import { formatCO2 } from '../lib/getOnsiteLocations'
 import { currentResultAtom } from './atoms.ts'
-import useEquivalent from '../hooks/useEquivalent'
 import { Candidates } from './Candidates'
 
 type TeamMemberProps = {
@@ -194,7 +193,7 @@ export function Planner({ baseTeam }: PlannerProps) {
     }).toSorted((a, b) => a.properties.name.localeCompare(b.properties.name))
 
 
-    return getScores(withSelected)
+    return withSelected
   }, [team, currentResult])
 
   console.log(teamWithSelected)

@@ -60,8 +60,6 @@ export default function useMapStyle(
 
     const greatCircles = featureCollection(getGreatCircles(currentResult))
 
-    const resultsWithScores = getScores(results)
-
     const sources = {
       ...newStyle.sources,
       greatCircles: {
@@ -70,7 +68,7 @@ export default function useMapStyle(
       },
       results: {
         type: 'geojson',
-        data: featureCollection(resultsWithScores),
+        data: featureCollection(results),
       },
       teamMembers: {
         type: 'geojson',

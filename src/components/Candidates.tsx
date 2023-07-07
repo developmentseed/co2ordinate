@@ -1,9 +1,13 @@
 import countryCodeEmoji from 'country-code-emoji'
 import styled from 'styled-components'
-import { currentResultAtom, resultsAtom, selectedAirportCodeAtom } from './atoms.ts'
+import {
+  currentResultAtom,
+  resultsAtom,
+  selectedAirportCodeAtom,
+} from './atoms.ts'
 import { useAtom, useAtomValue } from 'jotai'
-import { THEME_COLOR } from '../constants'
-import { formatCO2 } from '../lib/getOnsiteLocations'
+import { SCORES_RAMP, THEME_COLOR } from '../constants'
+import { formatCO2, getScores } from '../lib/getOnsiteLocations'
 import useEquivalent from '../hooks/useEquivalent'
 import { Table } from './Planner'
 
@@ -28,6 +32,13 @@ const Footer = styled.div`
   margin-top: 2rem;
 `
 
+const ScorePill = styled.span`
+  background: ${({ color }) => color};
+  color: black;
+  padding: 0.1rem 0.5rem;
+  border-radius: 99rem;
+`
+
 export function Candidates() {
   const results = useAtomValue(resultsAtom)
   const currentResult = useAtomValue(currentResultAtom)
@@ -35,7 +46,7 @@ export function Candidates() {
     selectedAirportCodeAtom
   )
   const equivalent = useEquivalent(currentResult)
-  
+
   return (
     <>
       {!!results?.length && (
@@ -45,7 +56,9 @@ export function Candidates() {
               <h2>
                 Travelling to {currentResult.properties.municipality}:{' '}
                 {currentResult.properties.airportTeamMembers.length} people -{' '}
-                {formatCO2(currentResult.properties.totalCO2)}
+                <ScorePill color={SCORES_RAMP[currentResult.properties.score]}>
+                  {formatCO2(currentResult.properties.totalCO2)}
+                </ScorePill>
               </h2>
             )}
             {equivalent && (
@@ -81,7 +94,11 @@ export function Candidates() {
                       {result.properties.iso_country}{' '}
                       {countryCodeEmoji(result.properties.iso_country)}{' '}
                     </td>
-                    <td>{formatCO2(result.properties.totalCO2)}</td>
+                    <td>
+                      <ScorePill color={SCORES_RAMP[result.properties.score]}>
+                        {formatCO2(result.properties.totalCO2)}
+                      </ScorePill>
+                    </td>
                     <td>{Math.round(result.properties.totalKm)} km</td>
                     <td>
                       {result.properties.homeAirportCount
