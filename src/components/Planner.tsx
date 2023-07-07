@@ -196,8 +196,6 @@ export function Planner({ baseTeam }: PlannerProps) {
     return withSelected
   }, [team, currentResult])
 
-  console.log(teamWithSelected)
-
   // TODO: Group airports by urban area
   useEffect(() => {
     fetch(
