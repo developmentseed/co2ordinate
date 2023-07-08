@@ -9,11 +9,9 @@ import {
 } from '@devseed-ui/theme-provider'
 import theme from './theme'
 import styled, { css } from 'styled-components'
-import { Button } from '@devseed-ui/button'
-import { useDropzone } from 'react-dropzone'
-import { useCallback, useState } from 'react'
-import { parse } from 'papaparse'
+import { useState } from 'react'
 import { TeamMember } from './planner/getOnsiteLocations'
+import { Drop } from './planner/Drop'
 
 const Page = styled.div`
   display: flex;
@@ -67,36 +65,7 @@ export const PageMainContent = styled.main`
 
 export function App() {
   const [customTeam, setCustomTeam] = useState<TeamMember[] | null>(null)
-  const onDrop = useCallback((acceptedFiles) => {
-    acceptedFiles.forEach((file) => {
-      const reader = new FileReader()
-
-      reader.onabort = () => console.log('file reading was aborted')
-      reader.onerror = () => console.log('file reading has failed')
-      reader.onload = () => {
-        const rawText = reader.result
-        const { data } = parse(rawText, { header: true })
-        const features = data.map(({ lat, lon, name }) => ({
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [lon, lat],
-          },
-          properties: {
-            name,
-          },
-        }))
-        setCustomTeam(features)
-      }
-      reader.readAsText(file)
-    })
-  }, [])
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    accept: {
-      'text/csv': ['.csv'],
-    },
-  })
+  console.log(customTeam)
   return (
     <DevseedUiThemeProvider theme={theme}>
       <Page>
@@ -104,16 +73,7 @@ export function App() {
           <PageMainContent>
             <Header>
               <h1>Meet-n-Greta: gather sustainably</h1>
-              <Button
-                {...getRootProps({ className: 'dropzone' })}
-                fitting="regular"
-                radius="rounded"
-                size="medium"
-                variation="primary-fill"
-              >
-                Upload CSV (lat,lon, name)
-                <input {...getInputProps()} />
-              </Button>
+              <Drop setCustomTeam={setCustomTeam} />
             </Header>
             <Planner baseTeam={customTeam || DEFAULT_TEAM} />
           </PageMainContent>

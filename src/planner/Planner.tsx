@@ -6,7 +6,14 @@ import styled from 'styled-components'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import countryCodeEmoji from 'country-code-emoji'
 import MapWrapper from './Map'
-import { airportsAtom, baseTeamMembersAtom, resultsAtom, selectedAirportCodeAtom, selectedTeamMembersAtom, teamAtom } from './atoms.ts'
+import {
+  airportsAtom,
+  baseTeamMembersAtom,
+  resultsAtom,
+  selectedAirportCodeAtom,
+  selectedTeamMembersAtom,
+  teamAtom,
+} from './atoms.ts'
 import { Result, formatCO2 } from './getOnsiteLocations'
 
 type TeamMemberProps = {
@@ -66,12 +73,17 @@ const Footer = styled.div`
 export function Planner({ baseTeam }: PlannerProps) {
   const setAirports = useSetAtom(airportsAtom)
   const setBaseTeamMembers = useSetAtom(baseTeamMembersAtom)
-  const [selectedTeamMembers, setSelectedTeamMembers] = useAtom(selectedTeamMembersAtom)
-  const [selectedAirportCode, setSelectedAirportCode] = useAtom(selectedAirportCodeAtom)
+  const [selectedTeamMembers, setSelectedTeamMembers] = useAtom(
+    selectedTeamMembersAtom
+  )
+  const [selectedAirportCode, setSelectedAirportCode] = useAtom(
+    selectedAirportCodeAtom
+  )
   const results = useAtomValue(resultsAtom)
   const team = useAtomValue(teamAtom)
 
   useEffect(() => {
+    console.log(baseTeam)
     setBaseTeamMembers(baseTeam)
   }, [baseTeam])
 
@@ -132,8 +144,6 @@ export function Planner({ baseTeam }: PlannerProps) {
       })
   }, [])
 
-
-
   // Set selected result the first time, once we have results
   useEffect(() => {
     if (!selectedAirportCode && results?.length) {
@@ -150,7 +160,6 @@ export function Planner({ baseTeam }: PlannerProps) {
     if (!selectedAirportCode || !results) return null
     return results.find((r) => r.properties.iata_code === selectedAirportCode)
   }, [results, selectedAirportCode])
-
 
   const equivalent = useMemo(() => {
     if (!currentResult) return null
@@ -224,7 +233,9 @@ export function Planner({ baseTeam }: PlannerProps) {
                       () => setSelectedAirportCode(result.properties.iata_code)
                       /* eslint-disable-next-line */
                     }
-                    selected={result.properties.iata_code === selectedAirportCode}
+                    selected={
+                      result.properties.iata_code === selectedAirportCode
+                    }
                   >
                     <td>
                       {result.properties.municipality} (
