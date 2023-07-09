@@ -7,10 +7,11 @@ import { Feature, Point } from 'geojson'
 import { ckmeans } from 'simple-statistics'
 
 export interface TeamMember {
-  title: string
-  id: string
-  location: [number, number]
+  name: string
+  team: string
 }
+
+export type TeamMemberFeature = Feature<Point, TeamMember>
 
 export interface Airport {
   municipality: string
@@ -19,7 +20,7 @@ export interface Airport {
   type: 'large_airport' | 'medium_airport'
 }
 
-export interface AirportTeamMember extends Feature<Point, TeamMember> {
+export interface AirportTeamMember extends TeamMemberFeature {
   distance: number | null
   co2: number | null
   homeAirportCode: string | null

@@ -1,20 +1,40 @@
-import { Feature, FeatureCollection, Geometry, Point } from 'geojson'
+import { FeatureCollection, Point } from 'geojson'
 import { atom } from 'jotai'
-import getOnsiteLocations, { Airport, TeamMember } from '../lib/getOnsiteLocations'
-import DEFAULT_TEAM from '../exampleTeam'
+import getOnsiteLocations, { Airport, TeamMemberFeature } from '../lib/getOnsiteLocations'
 
 export const airportsAtom = atom<FeatureCollection<Point, Record<string, Airport>> | null>(null)
 export const selectedAirportCodeAtom = atom('')
-export const selectedTeamMembersAtom = atom<Feature<Point, TeamMember>[]>([])
-export const baseTeamMembersAtom = atom<TeamMember[]>([])
-export const customTeamMembersAtom = atom<TeamMember[]>([])
+export const selectedTeamMemberNamesAtom = atom<string[]>([])
+export const baseTeamMembersAtom = atom<TeamMemberFeature[]>([])
+export const customTeamMembersAtom = atom<TeamMemberFeature[]>([])
 
-export const teamAtom = atom((get) => {
+export const teamMembersAtom = atom((get) => {
   const baseTeamMembers = get(baseTeamMembersAtom)
   const customTeamMembers = get(customTeamMembersAtom)
   if (!baseTeamMembers || !customTeamMembers) return []
   return [...baseTeamMembers, ...customTeamMembers]
 });
+
+export const selectedTeamMembersAtom = atom((get) => {
+  const selectedTeamMemberNames = get(selectedTeamMemberNamesAtom);
+  const baseTeamMembers = get(baseTeamMembersAtom);
+  const customTeamMembers = get(customTeamMembersAtom);
+
+  if (!selectedTeamMemberNames || !baseTeamMembers || !customTeamMembers)
+    return null;
+  const selectedBaseTeamMembers = baseTeamMembers.filter((m) =>
+    selectedTeamMemberNames.includes(m.properties.name)
+  );
+  const selectedCustomTeamMembers = customTeamMembers.filter((m) =>
+    selectedTeamMemberNames.includes(m.properties.name)
+  );
+
+  return [
+    ...selectedBaseTeamMembers,
+    ...selectedCustomTeamMembers,
+  ];
+});
+
 
 export const resultsAtom = atom((get) => {
   const airports = get(airportsAtom)

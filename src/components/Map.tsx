@@ -4,12 +4,16 @@ import style from '../style/maplibre-style.json'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import Popup from './Popup'
-import useMapStyle, { AIRPORT_ICON_LAYER_ID, AIRPORT_LAYER_ID } from '../hooks/useMapStyle'
+import useMapStyle, {
+  AIRPORT_ICON_LAYER_ID,
+  AIRPORT_LAYER_ID,
+} from '../hooks/useMapStyle'
 import {
   currentResultAtom,
   customTeamMembersAtom,
   resultsAtom,
   selectedAirportCodeAtom,
+  selectedTeamMemberNamesAtom,
   selectedTeamMembersAtom,
 } from './atoms.ts'
 import { useAtom, useAtomValue } from 'jotai'
@@ -23,13 +27,14 @@ export default function MapWrapper({}: any) {
   const mapContainer = useRef()
   const mapRef = useRef<Map>()
   const [mapLoaded, setMapLoaded] = useState(false)
-  const [selectedAirportCode, setSelectedAirportCode] = useAtom(selectedAirportCodeAtom)
+  const [selectedAirportCode, setSelectedAirportCode] = useAtom(
+    selectedAirportCodeAtom
+  )
   const [currentlyAddedMember, setCurrentlyAddedMember] = useState(null)
   const currentResult = useAtomValue(currentResultAtom)
   const results = useAtomValue(resultsAtom)
-  const [selectedTeamMembers, setSelectedTeamMembers] = useAtom(
-    selectedTeamMembersAtom
-  )
+  const selectedTeamMembers = useAtomValue(selectedTeamMembersAtom)
+  const [selectedTeamMemberNames, setSelectedTeamMemberNames] = useAtom(selectedTeamMemberNamesAtom)
   const [customTeamMembers, setCustomTeamMembers] = useAtom(
     customTeamMembersAtom
   )
@@ -50,12 +55,12 @@ export default function MapWrapper({}: any) {
         ...currentlyAddedMember,
         properties: {
           name,
-          custom: true
+          isCustom: true,
         },
       }
       popupRef.current.remove()
       setCustomTeamMembers([...customTeamMembers, newTeamMember])
-      setSelectedTeamMembers([...selectedTeamMembers, newTeamMember])
+      setSelectedTeamMemberNames([...selectedTeamMemberNames, name])
     },
     [currentlyAddedMember]
   )
@@ -75,7 +80,9 @@ export default function MapWrapper({}: any) {
 
     const getAirportAtCursor = (e) => {
       const features = mbMap.queryRenderedFeatures(e.point)
-      const airport = features.find((f) => [AIRPORT_ICON_LAYER_ID, AIRPORT_LAYER_ID].includes(f.layer.id))
+      const airport = features.find((f) =>
+        [AIRPORT_ICON_LAYER_ID, AIRPORT_LAYER_ID].includes(f.layer.id)
+      )
       return airport
     }
 
@@ -133,8 +140,8 @@ export default function MapWrapper({}: any) {
       }
 
       const popupNode = document.createElement('div')
-      const root = createRoot(popupNode); 
-      root.render(<Popup onSubmit={addMember} />);
+      const root = createRoot(popupNode)
+      root.render(<Popup onSubmit={addMember} />)
 
       popupRef.current
         .setLngLat(currentlyAddedMember?.geometry.coordinates)

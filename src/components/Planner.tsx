@@ -8,23 +8,19 @@ import Map from './Map'
 import {
   airportsAtom,
   baseTeamMembersAtom,
+  customTeamMembersAtom,
   resultsAtom,
   selectedAirportCodeAtom,
+  selectedTeamMemberNamesAtom,
   selectedTeamMembersAtom,
-  teamAtom,
+  teamMembersAtom,
 } from './atoms.ts'
-import { formatCO2 } from '../lib/getOnsiteLocations'
+import { TeamMemberFeature, formatCO2 } from '../lib/getOnsiteLocations'
 import { currentResultAtom } from './atoms.ts'
 import { Candidates } from './Candidates'
 
-type TeamMemberProps = {
-  name: string
-  team: string
-}
-export type TeamMember = Feature<Point, TeamMemberProps>
-
 type PlannerProps = {
-  baseTeam: TeamMember[]
+  baseTeam: TeamMemberFeature[]
 }
 
 const MapWrapper = styled.div`
@@ -79,24 +75,21 @@ export const Table = styled.table`
   }
 `
 
-
 const TeamMembersRow = styled.tr`
   color: ${({ disabled }) => (disabled ? 'grey' : 'inherit')};
 `
 
-
 export function Planner({ baseTeam }: PlannerProps) {
   const setAirports = useSetAtom(airportsAtom)
   const [baseTeamMembers, setBaseTeamMembers] = useAtom(baseTeamMembersAtom)
-  const [customTeamMembers, setCustomTeamMembers] = useAtom(baseTeamMembersAtom)
-  const [selectedTeamMembers, setSelectedTeamMembers] = useAtom(
-    selectedTeamMembersAtom
-  )
+  const [customTeamMembers, setCustomTeamMembers] = useAtom(customTeamMembersAtom)
+  const selectedTeamMembers = useAtomValue(selectedTeamMembersAtom)
+  const [selectedTeamMemberNames, setSelectedTeamMemberNames] = useAtom(selectedTeamMemberNamesAtom)
   const [selectedAirportCode, setSelectedAirportCode] = useAtom(
     selectedAirportCodeAtom
   )
   const results = useAtomValue(resultsAtom)
-  const team = useAtomValue(teamAtom)
+  const team = useAtomValue(teamMembersAtom)
 
   const currentResult = useAtomValue(currentResultAtom)
 
@@ -106,7 +99,7 @@ export function Planner({ baseTeam }: PlannerProps) {
 
   const selectEntries = useMemo(() => {
     if (!team?.length) return []
-    const teams = team.reduce((acc: string[], t: TeamMember) => {
+    const teams = team.reduce((acc: string[], t: TeamMemberFeature) => {
       if (!acc.includes(t.properties.team)) acc.push(t.properties.team)
       return acc
     }, [])
@@ -145,82 +138,78 @@ export function Planner({ baseTeam }: PlannerProps) {
         }
       })
 
-      setSelectedTeamMembers(dedupSelection)
+      setSelectedTeamMemberNames(dedupSelection.map(t => t.properties.name))
     },
     [team]
   )
 
   const onToggleTeamMember = useCallback(
-    (teamMember) => {
-      const selected = selectedTeamMembers.find(
-        (t) => t.properties.name === teamMember
-      )
+    (teamMemberName) => {
+      const selected = selectedTeamMemberNames.includes(teamMemberName)
       if (selected) {
-        const newSelection = selectedTeamMembers.filter(
-          (t) => t.properties.name !== teamMember
-        )
-        setSelectedTeamMembers(newSelection)
+        setSelectedTeamMemberNames(selectedTeamMemberNames.filter(t => t !== teamMemberName))
       } else {
-        const newSelection = [
-          ...selectedTeamMembers,
-          ...team.filter((t) => t.properties.name === teamMember),
-        ]
-        setSelectedTeamMembers(newSelection)
+        setSelectedTeamMemberNames([...selectedTeamMemberNames, teamMemberName])
       }
     },
-    [selectedTeamMembers]
+    [selectedTeamMemberNames]
   )
 
   const onDeleteTeamMember = useCallback(
     (teamMember) => {
-      const container = (teamMember.properties.isCustom) ? customTeamMembers : baseTeamMembers;
-      const del = (teamMember.properties.isCustom) ? setCustomTeamMembers : setBaseTeamMembers;
+      const container = teamMember.properties.isCustom
+        ? customTeamMembers
+        : baseTeamMembers
+      const del = teamMember.properties.isCustom
+        ? setCustomTeamMembers
+        : setBaseTeamMembers
       const newSelection = container.filter(
         (t) => t.properties.name !== teamMember.properties.name
       )
-      console.log(container)
       del(newSelection)
-
+      setSelectedTeamMemberNames(selectedTeamMemberNames.filter(t => t !== teamMember.properties.name))
     },
-    [setCustomTeamMembers, setBaseTeamMembers, customTeamMembers, baseTeamMembers]
+    [
+      setCustomTeamMembers,
+      setBaseTeamMembers,
+      customTeamMembers,
+      baseTeamMembers,
+    ]
   )
 
-
-  const onDeleteAllTeamMembers = useCallback(
-    () => {
-      setCustomTeamMembers([])
-      setBaseTeamMembers([])
-      setSelectedTeamMembers([])
-    },
-    [setCustomTeamMembers, setBaseTeamMembers, setSelectedTeamMembers]
-  )
-
+  const onDeleteAllTeamMembers = useCallback(() => {
+    setCustomTeamMembers([])
+    setBaseTeamMembers([])
+    setSelectedTeamMemberNames([])
+  }, [setCustomTeamMembers, setBaseTeamMembers, setSelectedTeamMemberNames])
 
   const teamWithSelected = useMemo(() => {
     if (!team?.length) return []
-    console.log(customTeamMembers, selectedTeamMembers)
-    const withSelected = team.map((t) => {
-      const isSelected = selectedTeamMembers.find(
-        (st) => st.properties.name === t.properties.name
-      )
-      const airportTeamMember = currentResult?.properties.airportTeamMembers.find(
-        (st) => st.properties.name === t.properties.name
-      )
 
-      return {
-        ...t,
-        properties: {
-          ...t.properties,
-          // TODO: sould be in properties
-          isSelected,
-          ...airportTeamMember,
-        },
-      }
-    }).toSorted((a, b) => a.properties.name.localeCompare(b.properties.name))
+    const withSelected = team
+      .map((t) => {
+        const isSelected = selectedTeamMembers.find(
+          (st) => st.properties.name === t.properties.name
+        )
+        const airportTeamMember =
+          currentResult?.properties.airportTeamMembers.find(
+            (st) => st.properties.name === t.properties.name
+          )
 
+        return {
+          ...t,
+          properties: {
+            ...t.properties,
+            // TODO: sould be in properties
+            isSelected,
+            ...airportTeamMember,
+          },
+        }
+      })
+      .toSorted((a, b) => a.properties.name.localeCompare(b.properties.name))
 
     return withSelected
-  }, [team, currentResult,customTeamMembers])
+  }, [team, currentResult, customTeamMembers])
 
   // TODO: Group airports by urban area
   useEffect(() => {
@@ -244,8 +233,6 @@ export function Planner({ baseTeam }: PlannerProps) {
   useEffect(() => {
     if (results?.length) setSelectedAirportCode(results[0].properties.iata_code)
   }, [results])
-
-
 
   return (
     <>
@@ -272,7 +259,7 @@ export function Planner({ baseTeam }: PlannerProps) {
             placeholder={
               selectEntries.length
                 ? 'Select at least 2 team members...'
-                : 'Loading...'
+                : 'Add team members first...'
             }
             name="colors"
             options={selectEntries}
@@ -283,7 +270,7 @@ export function Planner({ baseTeam }: PlannerProps) {
             onChange={onSelectTeamMembers}
             value={selectedTeamMembers}
           />
-          {teamWithSelected.length && (
+
             <>
               <Table>
                 <tbody>
@@ -296,9 +283,12 @@ export function Planner({ baseTeam }: PlannerProps) {
                     <th>Name</th>
                     <th>CO₂</th>
                     <th>Total dist</th>
-                    <th>                        <button onClick={onDeleteAllTeamMembers}>
-                          <img src='./trash-bin.svg'></img>
-                        </button></th>
+                    <th>
+                      {' '}
+                      <button onClick={onDeleteAllTeamMembers}>
+                        <img src="./trash-bin.svg"></img>
+                      </button>
+                    </th>
                   </tr>
                   {teamWithSelected.map((atm) => (
                     <TeamMembersRow
@@ -310,7 +300,9 @@ export function Planner({ baseTeam }: PlannerProps) {
                           : ''
                       }
                     >
-                      <td><img src='./user.png'></img></td>
+                      <td>
+                        <img src="./user.png"></img>
+                      </td>
                       <td>
                         <input
                           type="checkbox"
@@ -334,22 +326,20 @@ export function Planner({ baseTeam }: PlannerProps) {
                       </td>
                       <td>
                         <button onClick={() => onDeleteTeamMember(atm)}>
-                          <img src='./trash-bin.svg'></img>
+                          <img src="./trash-bin.svg"></img>
                         </button>
                       </td>
                     </TeamMembersRow>
                   ))}
                 </tbody>
               </Table>
-
             </>
-          )}
+
         </TeamMembers>
 
-      <CandidatesWrapper>
-        <Candidates />
-      </CandidatesWrapper>
-
+        <CandidatesWrapper>
+          <Candidates />
+        </CandidatesWrapper>
       </Overlay>
     </>
   )
