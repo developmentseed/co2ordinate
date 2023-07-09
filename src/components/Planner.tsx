@@ -21,7 +21,7 @@ type TeamMemberProps = {
   name: string
   team: string
 }
-type TeamMember = Feature<Point, TeamMemberProps>
+export type TeamMember = Feature<Point, TeamMemberProps>
 
 type PlannerProps = {
   baseTeam: TeamMember[]
@@ -87,7 +87,8 @@ const TeamMembersRow = styled.tr`
 
 export function Planner({ baseTeam }: PlannerProps) {
   const setAirports = useSetAtom(airportsAtom)
-  const setBaseTeamMembers = useSetAtom(baseTeamMembersAtom)
+  const [baseTeamMembers, setBaseTeamMembers] = useAtom(baseTeamMembersAtom)
+  const [customTeamMembers, setCustomTeamMembers] = useAtom(baseTeamMembersAtom)
   const [selectedTeamMembers, setSelectedTeamMembers] = useAtom(
     selectedTeamMembersAtom
   )
@@ -170,9 +171,34 @@ export function Planner({ baseTeam }: PlannerProps) {
     [selectedTeamMembers]
   )
 
+  const onDeleteTeamMember = useCallback(
+    (teamMember) => {
+      const container = (teamMember.properties.isCustom) ? customTeamMembers : baseTeamMembers;
+      const del = (teamMember.properties.isCustom) ? setCustomTeamMembers : setBaseTeamMembers;
+      const newSelection = container.filter(
+        (t) => t.properties.name !== teamMember.properties.name
+      )
+      console.log(container)
+      del(newSelection)
+
+    },
+    [setCustomTeamMembers, setBaseTeamMembers, customTeamMembers, baseTeamMembers]
+  )
+
+
+  const onDeleteAllTeamMembers = useCallback(
+    () => {
+      setCustomTeamMembers([])
+      setBaseTeamMembers([])
+      setSelectedTeamMembers([])
+    },
+    [setCustomTeamMembers, setBaseTeamMembers, setSelectedTeamMembers]
+  )
+
+
   const teamWithSelected = useMemo(() => {
     if (!team?.length) return []
-
+    console.log(customTeamMembers, selectedTeamMembers)
     const withSelected = team.map((t) => {
       const isSelected = selectedTeamMembers.find(
         (st) => st.properties.name === t.properties.name
@@ -194,7 +220,7 @@ export function Planner({ baseTeam }: PlannerProps) {
 
 
     return withSelected
-  }, [team, currentResult])
+  }, [team, currentResult,customTeamMembers])
 
   // TODO: Group airports by urban area
   useEffect(() => {
@@ -231,9 +257,9 @@ export function Planner({ baseTeam }: PlannerProps) {
           <h2>1. Add team members</h2>
           <ul>
             <li>Click on the map to set participant locations</li>
-            <li>
+            {/* <li>
               <input placeholder="Search locations to set points"></input>
-            </li>
+            </li> */}
             <li>Upload CSV (must include lat, lon columns)</li>
           </ul>
         </TeamSelector>
@@ -270,6 +296,9 @@ export function Planner({ baseTeam }: PlannerProps) {
                     <th>Name</th>
                     <th>CO₂</th>
                     <th>Total dist</th>
+                    <th>                        <button onClick={onDeleteAllTeamMembers}>
+                          <img src='./trash-bin.svg'></img>
+                        </button></th>
                   </tr>
                   {teamWithSelected.map((atm) => (
                     <TeamMembersRow
@@ -302,6 +331,11 @@ export function Planner({ baseTeam }: PlannerProps) {
                           ? Math.round(atm.properties.distance)
                           : '-'}{' '}
                         km
+                      </td>
+                      <td>
+                        <button onClick={() => onDeleteTeamMember(atm)}>
+                          <img src='./trash-bin.svg'></img>
+                        </button>
                       </td>
                     </TeamMembersRow>
                   ))}

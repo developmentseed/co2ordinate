@@ -12,8 +12,8 @@ export const customTeamMembersAtom = atom<TeamMember[]>([])
 export const teamAtom = atom((get) => {
   const baseTeamMembers = get(baseTeamMembersAtom)
   const customTeamMembers = get(customTeamMembersAtom)
-  if (!baseTeamMembers || !customTeamMembers) return null
-  return [...DEFAULT_TEAM, ...customTeamMembers]
+  if (!baseTeamMembers || !customTeamMembers) return []
+  return [...baseTeamMembers, ...customTeamMembers]
 });
 
 export const resultsAtom = atom((get) => {

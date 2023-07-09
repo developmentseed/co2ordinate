@@ -11,6 +11,7 @@ const Page = styled.div`
   min-height: 100vh;
   max-width: ${themeVal('layout.max')};
   margin: 0 auto;
+  font-size: .9rem;
 `
 
 const PageBody = styled.div`

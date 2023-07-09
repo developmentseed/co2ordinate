@@ -39,6 +39,11 @@ const ScorePill = styled.span`
   border-radius: 99rem;
 `
 
+const HomeIcon = styled.img`
+  float: left;
+  margin-right: 0.2rem;
+`
+
 export function Candidates() {
   const results = useAtomValue(resultsAtom)
   const currentResult = useAtomValue(currentResultAtom)
@@ -101,9 +106,14 @@ export function Candidates() {
                     </td>
                     <td>{Math.round(result.properties.totalKm)} km</td>
                     <td>
-                      {result.properties.homeAirportCount
+                      {[...Array(result.properties.homeAirportCount)].map(
+                        (e, i) => (
+                          <HomeIcon src="./house.png" />
+                        )
+                      )}
+                      {/* {result.properties.homeAirportCount
                         ? '🏡'.repeat(result.properties.homeAirportCount)
-                        : ''}
+                        : ''} */}
                     </td>
                   </ResultRow>
                 ))}

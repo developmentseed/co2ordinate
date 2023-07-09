@@ -14,7 +14,7 @@ export default function Popup({
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
-      <button onClick={() => onSubmit(name)}>Submit</button>
+      <button onClick={() => onSubmit(name)} disabled={name === ''}>Submit</button>
     </div>
   )
 }

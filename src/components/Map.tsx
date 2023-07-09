@@ -50,6 +50,7 @@ export default function MapWrapper({}: any) {
         ...currentlyAddedMember,
         properties: {
           name,
+          custom: true
         },
       }
       popupRef.current.remove()
