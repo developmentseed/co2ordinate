@@ -1,14 +1,13 @@
 import bbox from '@turf/bbox'
 import getDistance from '@turf/distance'
 import greatCircle from '@turf/great-circle'
-import getGreatCircle from '@turf/great-circle'
 import { featureCollection } from '@turf/helpers'
 import { Feature, Point } from 'geojson'
 import { ckmeans } from 'simple-statistics'
 
 export interface TeamMember {
   name: string
-  team: string
+  group: string
 }
 
 export type TeamMemberFeature = Feature<Point, TeamMember>

@@ -1,4 +1,3 @@
-import { Feature, Point } from 'geojson'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import Select from 'react-select'
@@ -9,6 +8,7 @@ import {
   airportsAtom,
   baseTeamMembersAtom,
   customTeamMembersAtom,
+  groupsAtom,
   resultsAtom,
   selectedAirportCodeAtom,
   selectedTeamMemberNamesAtom,
@@ -41,7 +41,7 @@ const Overlay = styled.div`
 
 const Panel = styled.div`
   background: white;
-  min-width: 400px;
+  min-width: 450px;
   max-width: 30vw;
   margin-bottom: 2rem;
   pointer-events: all;
@@ -90,6 +90,7 @@ export function Planner({ baseTeam }: PlannerProps) {
   )
   const results = useAtomValue(resultsAtom)
   const team = useAtomValue(teamMembersAtom)
+  const groups = useAtomValue(groupsAtom)
 
   const currentResult = useAtomValue(currentResultAtom)
 
@@ -99,28 +100,25 @@ export function Planner({ baseTeam }: PlannerProps) {
 
   const selectEntries = useMemo(() => {
     if (!team?.length) return []
-    const teams = team.reduce((acc: string[], t: TeamMemberFeature) => {
-      if (!acc.includes(t.properties.team)) acc.push(t.properties.team)
-      return acc
-    }, [])
-    if (!teams) return team
+
+    if (!groups) return team
     return [
-      { properties: { id: 'ALL', name: 'ALL TEAMS' } },
-      ...teams.map((p) => ({
-        properties: { id: p, type: 'team', name: `TEAM: ${p}` },
+      { properties: { id: 'ALL', name: 'ENTIRE TEAM' } },
+      ...groups.map((p) => ({
+        properties: { id: p, type: 'group', name: `GROUP: ${p}` },
       })),
       ...team,
     ]
-  }, [team])
+  }, [team, groups])
 
   const onSelectTeamMembers = useCallback(
     (teamMembers) => {
       const populatedSelection = teamMembers.flatMap((teamMember) => {
         if (teamMember.properties.id === 'ALL') return [...team]
-        else if (teamMember.properties.type === 'team') {
+        else if (teamMember.properties.type === 'group') {
           return [
             ...team.filter(
-              (t) => t.properties.team === teamMember.properties.id
+              (t) => t.properties.group === teamMember.properties.id
             ),
           ]
         } else return [teamMember]
@@ -281,6 +279,7 @@ export function Planner({ baseTeam }: PlannerProps) {
                       {/* <input type="checkbox" /> */}
                     </th>
                     <th>Name</th>
+                    {groups?.length ? <th>Group</th> : null}
                     <th>CO₂</th>
                     <th>Total dist</th>
                     <th>
@@ -313,6 +312,7 @@ export function Planner({ baseTeam }: PlannerProps) {
                         />
                       </td>
                       <td>{atm.properties.name}</td>
+                      {groups?.length ? <td>{atm.properties.group}</td> : null}
                       <td>
                         {atm.properties.co2
                           ? formatCO2(atm.properties.co2)

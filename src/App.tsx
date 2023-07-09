@@ -46,15 +46,6 @@ export function App() {
           <PageMainContent>
             <Header>
               <h1>Meet-n-Greta: gather sustainably</h1>
-              <Button
-                disabled
-                fitting="regular"
-                radius="rounded"
-                size="medium"
-                variation="primary-fill"
-              >
-                Add your team (soon)
-              </Button>
             </Header>
             <PlannerWrapper>
             <Planner baseTeam={DEFAULT_TEAM} />

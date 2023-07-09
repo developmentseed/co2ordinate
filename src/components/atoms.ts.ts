@@ -35,6 +35,15 @@ export const selectedTeamMembersAtom = atom((get) => {
   ];
 });
 
+export const groupsAtom = atom((get) => {
+  const teamMembers = get(teamMembersAtom)
+  if (!teamMembers) return []
+  const groups = teamMembers.reduce((acc: string[], t: TeamMemberFeature) => {
+    if (t.properties.group && !acc.includes(t.properties.group)) acc.push(t.properties.group)
+    return acc
+  }, [])
+  return groups
+})
 
 export const resultsAtom = atom((get) => {
   const airports = get(airportsAtom)

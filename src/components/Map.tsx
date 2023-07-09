@@ -16,7 +16,7 @@ import {
   selectedTeamMemberNamesAtom,
   selectedTeamMembersAtom,
 } from './atoms.ts'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 
 const CandidatesMapSection = styled.div`
   height: 100%;
@@ -27,14 +27,14 @@ export default function MapWrapper({}: any) {
   const mapContainer = useRef()
   const mapRef = useRef<Map>()
   const [mapLoaded, setMapLoaded] = useState(false)
-  const [selectedAirportCode, setSelectedAirportCode] = useAtom(
-    selectedAirportCodeAtom
-  )
+  const setSelectedAirportCode = useSetAtom(selectedAirportCodeAtom)
   const [currentlyAddedMember, setCurrentlyAddedMember] = useState(null)
   const currentResult = useAtomValue(currentResultAtom)
   const results = useAtomValue(resultsAtom)
   const selectedTeamMembers = useAtomValue(selectedTeamMembersAtom)
-  const [selectedTeamMemberNames, setSelectedTeamMemberNames] = useAtom(selectedTeamMemberNamesAtom)
+  const [selectedTeamMemberNames, setSelectedTeamMemberNames] = useAtom(
+    selectedTeamMemberNamesAtom
+  )
   const [customTeamMembers, setCustomTeamMembers] = useAtom(
     customTeamMembersAtom
   )
@@ -49,7 +49,8 @@ export default function MapWrapper({}: any) {
   }, [mapLoaded, currentStyle])
 
   const addMember = useCallback(
-    (name: string) => {
+    (name: string, group: string | null) => {
+      console.log('addMember', name, group)
       setCurrentlyAddedMember(null)
       const newTeamMember = {
         ...currentlyAddedMember,
@@ -57,6 +58,9 @@ export default function MapWrapper({}: any) {
           name,
           isCustom: true,
         },
+      }
+      if (group) {
+        newTeamMember.properties.group = group
       }
       popupRef.current.remove()
       setCustomTeamMembers([...customTeamMembers, newTeamMember])
