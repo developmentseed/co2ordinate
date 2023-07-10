@@ -2,7 +2,7 @@ import { Planner } from './components/Planner'
 import DEFAULT_TEAM from './exampleTeam'
 import { DevseedUiThemeProvider, themeVal } from '@devseed-ui/theme-provider'
 import theme from './theme'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { useState } from 'react'
 import { TeamMember } from './lib/getOnsiteLocations'
 import { Drop } from './components/Drop'
@@ -41,8 +41,6 @@ const PlannerWrapper = styled.div`
 `
 
 export function App() {
-  const [customTeam, setCustomTeam] = useState<TeamMember[] | null>(null)
-
   return (
     <DevseedUiThemeProvider theme={theme}>
       <Page>
@@ -50,7 +48,6 @@ export function App() {
           <PageMainContent>
             <Header>
               <h1>Meet-n-Greta: gather sustainably</h1>
-              <Drop setCustomTeam={setCustomTeam} />
             </Header>
             <PlannerWrapper>
               <Planner baseTeam={DEFAULT_TEAM} />

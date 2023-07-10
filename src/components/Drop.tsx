@@ -2,8 +2,11 @@ import { useDropzone } from 'react-dropzone'
 import { useCallback } from 'react'
 import { parse } from 'papaparse'
 import { Button } from '@devseed-ui/button'
+import { useAtom } from 'jotai'
+import { customTeamMembersAtom } from './atoms'
 
-export function Drop({ setCustomTeam }) {
+export function Drop() {
+  const [customTeamMembers, setCustomTeamMembers] = useAtom(customTeamMembersAtom)
   const onDrop = useCallback((acceptedFiles) => {
     acceptedFiles.forEach((file) => {
       const reader = new FileReader()
@@ -16,18 +19,16 @@ export function Drop({ setCustomTeam }) {
         let firstRow = data[0]
 
         // Try to find geometry columns, either lat/lon or city/country
-        let latCol = null
-        let lonCol = null
-        let cityCol = null
-        let countryCol = null
-        let teamCol = null
-        let nameCol = null
+        let [latCol, lonCol, cityCol, countryCol, groupCol, nameCol] = Array(6).fill(null)
         let features = []
         for (let col in firstRow) {
           if (col.toLowerCase().includes('lat')) {
             latCol = col
           }
-          if (col.toLowerCase().includes('lon') || col.toLowerCase().includes('lng')) {
+          if (
+            col.toLowerCase().includes('lon') ||
+            col.toLowerCase().includes('lng')
+          ) {
             lonCol = col
           }
           if (col.toLowerCase().includes('city')) {
@@ -36,8 +37,8 @@ export function Drop({ setCustomTeam }) {
           if (col.toLowerCase().includes('country')) {
             countryCol = col
           }
-          if (col.toLowerCase().includes('team')) {
-            teamCol = col
+          if (col.toLowerCase().includes('group')) {
+            groupCol = col
           }
           if (col.toLowerCase().includes('name')) {
             nameCol = col
@@ -50,7 +51,7 @@ export function Drop({ setCustomTeam }) {
             const lat = parseFloat(row[latCol])
             const lon = parseFloat(row[lonCol])
             const name = row[nameCol]
-            const team = row[teamCol]
+            const group = row[groupCol]
             return {
               type: 'Feature',
               geometry: {
@@ -59,7 +60,7 @@ export function Drop({ setCustomTeam }) {
               },
               properties: {
                 name,
-                team,
+                group,
               },
             }
           })
@@ -69,7 +70,7 @@ export function Drop({ setCustomTeam }) {
             const city = row[cityCol]
             const country = row[countryCol]
             const name = row[nameCol]
-            const team = row[teamCol]
+            const group = row[groupCol]
 
             // TODO: Geocode city/country
             return {
@@ -80,7 +81,7 @@ export function Drop({ setCustomTeam }) {
               },
               properties: {
                 name,
-                team,
+                group,
                 city,
                 country,
               },
@@ -90,12 +91,12 @@ export function Drop({ setCustomTeam }) {
           console.error('Could not find lat/lon or city/country columns')
         }
         if (features.length > 0) {
-          setCustomTeam(features)
+          setCustomTeamMembers([...customTeamMembers, ...features])
         }
       }
       reader.readAsText(file)
     })
-  }, [])
+  }, [customTeamMembers, setCustomTeamMembers])
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
@@ -106,12 +107,12 @@ export function Drop({ setCustomTeam }) {
   return (
     <Button
       {...getRootProps({ className: 'dropzone' })}
-      fitting="regular"
       radius="rounded"
-      size="medium"
-      variation="primary-fill"
+      size="small"
+      variation="base-outline"
+      fitting="baggy"
     >
-      Upload CSV (name, lat, lon, optional team columns)
+      Click or drag CSV here
       <input {...getInputProps()} />
     </Button>
   )

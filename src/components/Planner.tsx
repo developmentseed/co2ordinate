@@ -3,6 +3,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import Select from 'react-select'
 import styled from 'styled-components'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import { Button } from '@devseed-ui/button'
 import Map from './Map'
 import {
   airportsAtom,
@@ -18,6 +19,7 @@ import {
 import { TeamMemberFeature, formatCO2 } from '../lib/getOnsiteLocations'
 import { currentResultAtom } from './atoms.ts'
 import { Candidates } from './Candidates'
+import AddTeam from './AddTeam'
 
 type PlannerProps = {
   baseTeam: TeamMemberFeature[]
@@ -35,7 +37,7 @@ const Overlay = styled.div`
   top: 0;
   left: 0;
   z-index: 100;
-  padding: 2rem;
+  padding: 1rem;
   pointer-events: none;
 `
 
@@ -43,16 +45,18 @@ const Panel = styled.div`
   background: white;
   min-width: 450px;
   max-width: 30vw;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   pointer-events: all;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 
   & > h2 {
     font-size: 1.2rem;
   }
 `
 
-const TeamSelector = styled(Panel)``
+const AddTeamWrapper = styled(Panel)``
 
 const TeamMembers = styled(Panel)`
   min-height: 30vh;
@@ -82,9 +86,13 @@ const TeamMembersRow = styled.tr`
 export function Planner({ baseTeam }: PlannerProps) {
   const setAirports = useSetAtom(airportsAtom)
   const [baseTeamMembers, setBaseTeamMembers] = useAtom(baseTeamMembersAtom)
-  const [customTeamMembers, setCustomTeamMembers] = useAtom(customTeamMembersAtom)
+  const [customTeamMembers, setCustomTeamMembers] = useAtom(
+    customTeamMembersAtom
+  )
   const selectedTeamMembers = useAtomValue(selectedTeamMembersAtom)
-  const [selectedTeamMemberNames, setSelectedTeamMemberNames] = useAtom(selectedTeamMemberNamesAtom)
+  const [selectedTeamMemberNames, setSelectedTeamMemberNames] = useAtom(
+    selectedTeamMemberNamesAtom
+  )
   const [selectedAirportCode, setSelectedAirportCode] = useAtom(
     selectedAirportCodeAtom
   )
@@ -136,7 +144,7 @@ export function Planner({ baseTeam }: PlannerProps) {
         }
       })
 
-      setSelectedTeamMemberNames(dedupSelection.map(t => t.properties.name))
+      setSelectedTeamMemberNames(dedupSelection.map((t) => t.properties.name))
     },
     [team]
   )
@@ -145,7 +153,9 @@ export function Planner({ baseTeam }: PlannerProps) {
     (teamMemberName) => {
       const selected = selectedTeamMemberNames.includes(teamMemberName)
       if (selected) {
-        setSelectedTeamMemberNames(selectedTeamMemberNames.filter(t => t !== teamMemberName))
+        setSelectedTeamMemberNames(
+          selectedTeamMemberNames.filter((t) => t !== teamMemberName)
+        )
       } else {
         setSelectedTeamMemberNames([...selectedTeamMemberNames, teamMemberName])
       }
@@ -165,7 +175,9 @@ export function Planner({ baseTeam }: PlannerProps) {
         (t) => t.properties.name !== teamMember.properties.name
       )
       del(newSelection)
-      setSelectedTeamMemberNames(selectedTeamMemberNames.filter(t => t !== teamMember.properties.name))
+      setSelectedTeamMemberNames(
+        selectedTeamMemberNames.filter((t) => t !== teamMember.properties.name)
+      )
     },
     [
       setCustomTeamMembers,
@@ -238,26 +250,19 @@ export function Planner({ baseTeam }: PlannerProps) {
         <Map />
       </MapWrapper>
       <Overlay>
-        <TeamSelector>
-          <h2>1. Add team members</h2>
-          <ul>
-            <li>Click on the map to set participant locations</li>
-            {/* <li>
-              <input placeholder="Search locations to set points"></input>
-            </li> */}
-            <li>Upload CSV (must include lat, lon columns)</li>
-          </ul>
-        </TeamSelector>
+        <AddTeamWrapper>
+          <AddTeam />
+        </AddTeamWrapper>
 
         <TeamMembers>
           <h2>2. Select who is coming</h2>
-          Please select at least 2 team members to show results.
+          <em>Please select at least 2 team members to show results.</em>
           <Select
             isMulti
             placeholder={
               selectEntries.length
                 ? 'Select at least 2 team members...'
-                : 'Add team members first...'
+                : 'Add team members first 👆'
             }
             name="colors"
             options={selectEntries}
@@ -269,9 +274,10 @@ export function Planner({ baseTeam }: PlannerProps) {
             value={selectedTeamMembers}
           />
 
-            <>
-              <Table>
-                <tbody>
+          <>
+            <Table>
+              <tbody>
+                {!!teamWithSelected.length && (
                   <tr>
                     <th></th>
                     <th>
@@ -284,57 +290,63 @@ export function Planner({ baseTeam }: PlannerProps) {
                     <th>Total dist</th>
                     <th>
                       {' '}
-                      <button onClick={onDeleteAllTeamMembers}>
+                      <Button
+                        radius="rounded"
+                        size="small"
+                        variation="base-outline"
+                        onClick={onDeleteAllTeamMembers}
+                      >
                         <img src="./trash-bin.svg"></img>
-                      </button>
+                      </Button>
                     </th>
                   </tr>
-                  {teamWithSelected.map((atm) => (
-                    <TeamMembersRow
-                      key={atm.properties.name}
-                      disabled={atm.distance === null}
-                      title={
-                        atm.distance === null
-                          ? 'Team member does not have coordinates'
-                          : ''
-                      }
-                    >
-                      <td>
-                        <img src="./user.png"></img>
-                      </td>
-                      <td>
-                        <input
-                          type="checkbox"
-                          checked={atm.properties.isSelected}
-                          onChange={() =>
-                            onToggleTeamMember(atm.properties.name)
-                          }
-                        />
-                      </td>
-                      <td>{atm.properties.name}</td>
-                      {groups?.length ? <td>{atm.properties.group}</td> : null}
-                      <td>
-                        {atm.properties.co2
-                          ? formatCO2(atm.properties.co2)
-                          : '-'}
-                      </td>
-                      <td>
-                        {atm.properties.distance
-                          ? Math.round(atm.properties.distance)
-                          : '-'}{' '}
-                        km
-                      </td>
-                      <td>
-                        <button onClick={() => onDeleteTeamMember(atm)}>
-                          <img src="./trash-bin.svg"></img>
-                        </button>
-                      </td>
-                    </TeamMembersRow>
-                  ))}
-                </tbody>
-              </Table>
-            </>
-
+                )}
+                {teamWithSelected.map((atm) => (
+                  <TeamMembersRow
+                    key={atm.properties.name}
+                    disabled={atm.distance === null}
+                    title={
+                      atm.distance === null
+                        ? 'Team member does not have coordinates'
+                        : ''
+                    }
+                  >
+                    <td>
+                      <img src="./user.png"></img>
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={atm.properties.isSelected}
+                        onChange={() => onToggleTeamMember(atm.properties.name)}
+                      />
+                    </td>
+                    <td>{atm.properties.name}</td>
+                    {groups?.length ? <td>{atm.properties.group}</td> : null}
+                    <td>
+                      {atm.properties.co2 ? formatCO2(atm.properties.co2) : '-'}
+                    </td>
+                    <td>
+                      {atm.properties.distance
+                        ? Math.round(atm.properties.distance)
+                        : '-'}{' '}
+                      km
+                    </td>
+                    <td>
+                      <Button
+                        radius="rounded"
+                        size="small"
+                        variation="base-outline"
+                        onClick={() => onDeleteTeamMember(atm)}
+                      >
+                        <img src="./trash-bin.svg"></img>
+                      </Button>
+                    </td>
+                  </TeamMembersRow>
+                ))}
+              </tbody>
+            </Table>
+          </>
         </TeamMembers>
 
         <CandidatesWrapper>
