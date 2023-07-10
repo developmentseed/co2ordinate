@@ -4,12 +4,16 @@ import {
   currentResultAtom,
   resultsAtom,
   selectedAirportCodeAtom,
-} from './atoms.ts'
+} from './atoms'
 import { useAtom, useAtomValue } from 'jotai'
 import { SCORES_RAMP, THEME_COLOR } from '../constants'
-import { formatCO2, getScores } from '../lib/getOnsiteLocations'
+import { DEFAULT_SCORE_BREAKS, formatCO2 } from '../lib/getOnsiteLocations'
 import useEquivalent from '../hooks/useEquivalent'
 import { Table } from './Planner'
+
+const CurrentResult = styled.div`
+  margin-bottom: 1rem;
+`
 
 const CandidatesTableSection = styled.div`
   flex: 1;
@@ -25,7 +29,7 @@ const ResultRow = styled.tr`
 `
 
 const Equivalent = styled.p`
-  margin: 0.5rem 0 1rem;
+  margin: 0.5rem 0;
 `
 
 const Footer = styled.div`
@@ -34,7 +38,8 @@ const Footer = styled.div`
 
 const ScorePill = styled.span`
   background: ${({ color }) => color};
-  color: black;
+  color: ${({ light }) => (light ? 'white' : 'black')};
+  font-weight: ${({ strong }) => (strong ? 'bold' : 'normal')};
   padding: 0.1rem 0.5rem;
   border-radius: 99rem;
 `
@@ -52,25 +57,46 @@ export function Candidates() {
   )
   const equivalent = useEquivalent(currentResult)
 
+  const showWarning =
+    currentResult?.properties.totalCO2 > DEFAULT_SCORE_BREAKS[0].maxAbsoluteCO2
+
   return (
     <>
       {!!results?.length && (
         <>
           <CandidatesTableSection>
             {currentResult && (
-              <h2>
-                Travelling to {currentResult.properties.municipality}:{' '}
-                {currentResult.properties.airportTeamMembers.length} people -{' '}
-                <ScorePill color={SCORES_RAMP[currentResult.properties.score]}>
-                  {formatCO2(currentResult.properties.totalCO2)}
-                </ScorePill>
-              </h2>
+              <CurrentResult>
+                <h2>
+                  Travelling to {currentResult.properties.municipality}:{' '}
+                  {currentResult.properties.airportTeamMembers.length} people -{' '}
+                  <ScorePill
+                    color={SCORES_RAMP[currentResult.properties.score]}
+                  >
+                    {formatCO2(currentResult.properties.totalCO2)}
+                  </ScorePill>
+                </h2>
+                {equivalent && (
+                  <Equivalent>
+                    {equivalent[0]} (<a href={equivalent[1]}>source</a>)
+                  </Equivalent>
+                )}{' '}
+                {showWarning && (
+                  <ScorePill
+                    light
+                    strong
+                    color={SCORES_RAMP[currentResult.properties.score]}
+                  >
+                    Warning: this is a high-emission trip.{' '}
+                    <a href="https://hbr.org/2022/07/how-to-lead-better-virtual-meetings">
+                      Virtual meetings don't have to be bad.
+                    </a>{' '}
+                    Have you (re)considered this?
+                  </ScorePill>
+                )}
+              </CurrentResult>
             )}
-            {equivalent && (
-              <Equivalent>
-                {equivalent[0]} (<a href={equivalent[1]}>source</a>)
-              </Equivalent>
-            )}{' '}
+
             <Table>
               <tbody>
                 <tr>

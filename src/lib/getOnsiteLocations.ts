@@ -217,7 +217,7 @@ export function formatCO2(co2: number) {
 
 
 // If value is > maxAbsoluteCO2, this bucket will be skipped when doing kmeans
-const DEFAULT_SCORE_BREAKS = [
+export const DEFAULT_SCORE_BREAKS = [
   { maxAbsoluteCO2: 10000 },
   { maxAbsoluteCO2: 20000 },
   { maxAbsoluteCO2: 30000 },
