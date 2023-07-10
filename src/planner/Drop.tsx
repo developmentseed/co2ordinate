@@ -27,7 +27,7 @@ export function Drop({ setCustomTeam }) {
           if (col.toLowerCase().includes('lat')) {
             latCol = col
           }
-          if (col.toLowerCase().includes('lon')) {
+          if (col.toLowerCase().includes('lon') || col.toLowerCase().includes('lng')) {
             lonCol = col
           }
           if (col.toLowerCase().includes('city')) {
@@ -111,7 +111,7 @@ export function Drop({ setCustomTeam }) {
       size="medium"
       variation="primary-fill"
     >
-      Upload CSV (lat,lon, name)
+      Upload CSV (name, lat, lon, optional team columns)
       <input {...getInputProps()} />
     </Button>
   )
