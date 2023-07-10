@@ -157,7 +157,7 @@ export default function MapWrapper({}: any) {
   useEffect(() => {
     if (!selectedTeamMembers || selectedTeamMembers.length < 2) return
     const mbMap = mapRef.current
-    console.log(selectedTeamMembers)
+
     const bbox = selectedTeamMembers.reduce(
       (acc, member) => {
         const [lon, lat] = member.geometry.coordinates
@@ -172,7 +172,7 @@ export default function MapWrapper({}: any) {
     )
     if (mapLoaded && mbMap) {
       mbMap.fitBounds(bbox as any, {
-        padding: { top: 50, right: 50, bottom: 50, left: 500 },
+        padding: { top: 50, right: 50, bottom: 50, left: 550 },
       })
     }
   }, [mapLoaded, selectedTeamMembers])

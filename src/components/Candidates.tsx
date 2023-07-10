@@ -145,9 +145,6 @@ export function Candidates() {
                           <HomeIcon src="./house.png" />
                         )
                       )}
-                      {/* {result.properties.homeAirportCount
-                        ? '🏡'.repeat(result.properties.homeAirportCount)
-                        : ''} */}
                     </td>
                   </ResultRow>
                 ))}

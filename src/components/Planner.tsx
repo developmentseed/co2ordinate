@@ -15,7 +15,7 @@ import {
   selectedTeamMemberNamesAtom,
   selectedTeamMembersAtom,
   teamMembersAtom,
-  currentResultAtom
+  currentResultAtom,
 } from './atoms'
 import { TeamMemberFeature, formatCO2 } from '../lib/getOnsiteLocations'
 import { Candidates } from './Candidates'
@@ -103,8 +103,35 @@ export function Planner({ baseTeam }: PlannerProps) {
   const currentResult = useAtomValue(currentResultAtom)
 
   useEffect(() => {
-    setBaseTeamMembers(baseTeam)
+    const localSavedTeamMembers = JSON.parse(
+      localStorage.getItem('teamMembers')
+    )
+    const localSavedSelectedTeamMembersNames = JSON.parse(
+      localStorage.getItem('selectedTeamMemberNames')
+    )
+    setBaseTeamMembers(localSavedTeamMembers || baseTeam)
+    setSelectedTeamMemberNames(
+      localSavedSelectedTeamMembersNames || [
+        'Jules Verne',
+        'Octavia Butler',
+        'Salim Ali',
+        'Stanislas Lem',
+        'Ursula K. Le Guin',
+        'Wangari Maathai',
+      ]
+    )
   }, [baseTeam])
+
+  useEffect(() => {
+    localStorage.setItem('teamMembers', JSON.stringify(team))
+  }, [team])
+
+  useEffect(() => {
+    localStorage.setItem(
+      'selectedTeamMemberNames',
+      JSON.stringify(selectedTeamMemberNames)
+    )
+  }, [selectedTeamMemberNames])
 
   const selectEntries = useMemo(() => {
     if (!team?.length) return []
