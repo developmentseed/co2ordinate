@@ -4,3 +4,4 @@ dist
 docs
 .parcel-cache/
 .env.local
+.yarn
