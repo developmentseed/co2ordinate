@@ -38,10 +38,13 @@ export default function AddTeam() {
       <AddTeamOptions>
         <li>✛ Click on the map to set participant locations</li>
         <li>
-          <input disabled placeholder="Search locations to set points (SOON)"></input>
+          <input
+            disabled
+            placeholder="Search locations to set points (SOON)"
+          ></input>
         </li>
         <li>
-          Upload CSV
+          Add CSV file
           <em>Must include name, lat, lon columns. Optional 'group' column.</em>
           <Drop />
         </li>

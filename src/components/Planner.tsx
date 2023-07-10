@@ -15,9 +15,9 @@ import {
   selectedTeamMemberNamesAtom,
   selectedTeamMembersAtom,
   teamMembersAtom,
-} from './atoms.ts'
+  currentResultAtom
+} from './atoms'
 import { TeamMemberFeature, formatCO2 } from '../lib/getOnsiteLocations'
-import { currentResultAtom } from './atoms.ts'
 import { Candidates } from './Candidates'
 import AddTeam from './AddTeam'
 
@@ -52,7 +52,7 @@ const Panel = styled.div`
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 
   & > h2 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 `
 
@@ -349,9 +349,11 @@ export function Planner({ baseTeam }: PlannerProps) {
           </>
         </TeamMembers>
 
-        <CandidatesWrapper>
-          <Candidates />
-        </CandidatesWrapper>
+        {!!results?.length && (
+          <CandidatesWrapper>
+            <Candidates />
+          </CandidatesWrapper>
+        )}
       </Overlay>
     </>
   )

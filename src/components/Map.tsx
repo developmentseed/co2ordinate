@@ -154,6 +154,29 @@ export default function MapWrapper({}: any) {
     }
   }, [mapLoaded, currentlyAddedMember])
 
+  useEffect(() => {
+    if (!selectedTeamMembers || selectedTeamMembers.length < 2) return
+    const mbMap = mapRef.current
+    console.log(selectedTeamMembers)
+    const bbox = selectedTeamMembers.reduce(
+      (acc, member) => {
+        const [lon, lat] = member.geometry.coordinates
+        return [
+          Math.min(acc[0], lon),
+          Math.min(acc[1], lat),
+          Math.max(acc[2], lon),
+          Math.max(acc[3], lat),
+        ]
+      },
+      [Infinity, Infinity, -Infinity, -Infinity]
+    )
+    if (mapLoaded && mbMap) {
+      mbMap.fitBounds(bbox as any, {
+        padding: { top: 50, right: 50, bottom: 50, left: 500 },
+      })
+    }
+  }, [mapLoaded, selectedTeamMembers])
+
   const popupRef = useRef<maplibregl.Popup>()
 
   return <CandidatesMapSection ref={mapContainer} />

@@ -40,7 +40,6 @@ const DOMESTIC_CO2_PER_KM = 0.255
 const LONG_HAUL_CO2_PER_KM = 0.15
 const SHORT_HAUL_CO2_PER_KM = 0.156
 
-
 function getCO2(distKm: number) {
   // Under that threshold consider team member will use train
   // TODO obviously only works in Europe/NW corridor/some parts of Asia, filter with country code?
@@ -59,7 +58,7 @@ export default function getOnsiteLocations(
   teamMembers: Feature<Point, TeamMember>[],
   airports: Feature<Point, Airport>[],
   maxResults = 10,
-  alwaysIncludeHomeAirports = true,
+  alwaysIncludeHomeAirports = true
 ): Feature<Point, Result>[] {
   if (teamMembers.length < 2) return []
 
@@ -172,7 +171,7 @@ export default function getOnsiteLocations(
       },
     ]
   })
-  
+
   // Do not show local airports that are not home airports
   // TODO make it configurable
   let finalResults = results.filter(
@@ -182,21 +181,22 @@ export default function getOnsiteLocations(
   )
   finalResults.sort((a, b) => a.properties.totalCO2 - b.properties.totalCO2)
 
-
   const homeAirports = finalResults.filter(
     (airport) => airport.properties.homeAirportCount
-    )
+  )
 
   const nonHomeAirports = finalResults.filter(
     (airport) => !airport.properties.homeAirportCount
-    )
+  )
 
   const slicedResults = []
   if (alwaysIncludeHomeAirports) {
-    slicedResults.push(...homeAirports.slice(0, maxResults))  
+    slicedResults.push(...homeAirports.slice(0, maxResults))
   }
 
-  slicedResults.push(...nonHomeAirports.slice(0, maxResults - slicedResults.length))
+  slicedResults.push(
+    ...nonHomeAirports.slice(0, maxResults - slicedResults.length)
+  )
   slicedResults.sort((a, b) => a.properties.totalCO2 - b.properties.totalCO2)
 
   const withScores = getScores(slicedResults)
@@ -215,37 +215,42 @@ export function formatCO2(co2: number) {
   return [(co2 / 1000).toFixed(2), 't CO₂'].join('')
 }
 
-
 // If value is > maxAbsoluteCO2, this bucket will be skipped when doing kmeans
 export const DEFAULT_SCORE_BREAKS = [
   { maxAbsoluteCO2: 10000 },
   { maxAbsoluteCO2: 20000 },
   { maxAbsoluteCO2: 30000 },
   {},
-  {}
+  {},
 ]
 
-export function getScores(results: Feature<Point, Result>[], breaks = DEFAULT_SCORE_BREAKS) {
+export function getScores(
+  results: Feature<Point, Result>[],
+  breaks = DEFAULT_SCORE_BREAKS
+) {
   const bestValue = results[0].properties.totalCO2
 
   let startBreaksAt = 0
   for (let i = 0; i < breaks.length; i++) {
-    if (bestValue < breaks[i].maxAbsoluteCO2 ||  breaks[i].maxAbsoluteCO2 === undefined) {
+    if (
+      bestValue < breaks[i].maxAbsoluteCO2 ||
+      breaks[i].maxAbsoluteCO2 === undefined
+    ) {
       startBreaksAt = i
       break
     }
   }
 
   const totalBreaks = breaks.length - startBreaksAt
-  
-  const allCO2s = results.map(
-    (r) => r.properties.totalCO2
-  )
+
+  const allCO2s = results.map((r) => r.properties.totalCO2)
 
   const clusters = ckmeans(allCO2s, totalBreaks)
 
   const resultsWithScores = results.map((r) => {
-    const score = clusters.findIndex((c) => c.includes(r.properties.totalCO2)) + startBreaksAt
+    const score =
+      clusters.findIndex((c) => c.includes(r.properties.totalCO2)) +
+      startBreaksAt
     return {
       ...r,
       properties: {
@@ -256,5 +261,4 @@ export function getScores(results: Feature<Point, Result>[], breaks = DEFAULT_SC
   })
 
   return resultsWithScores
- 
 }

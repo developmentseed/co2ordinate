@@ -3,9 +3,6 @@ import DEFAULT_TEAM from './exampleTeam'
 import { DevseedUiThemeProvider, themeVal } from '@devseed-ui/theme-provider'
 import theme from './theme'
 import styled from 'styled-components'
-import { useState } from 'react'
-import { TeamMember } from './lib/getOnsiteLocations'
-import { Drop } from './components/Drop'
 
 const Page = styled.div`
   display: flex;
@@ -27,6 +24,14 @@ const Header = styled.header`
   justify-content: space-between;
   height: 50px;
   position: sticky;
+  top: 0;
+  z-index: 999;
+  background: white;
+  padding: 0.3rem 1rem;
+
+  h1 {
+    font-size: 1.4rem;
+  }
 `
 
 const PageMainContent = styled.main`

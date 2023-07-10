@@ -21,7 +21,7 @@ const CandidatesTableSection = styled.div`
 
 const ResultRow = styled.tr`
   cursor: pointer;
-  background: ${({ selected }) => (selected ? THEME_COLOR : 'transparent')};
+  background: ${({ selected }) => (selected ? '#999' : 'transparent')};
   color: ${({ selected }) => (selected ? 'white' : 'inherit')};
   :hover {
     background: #ddd;
@@ -38,10 +38,18 @@ const Footer = styled.div`
 
 const ScorePill = styled.span`
   background: ${({ color }) => color};
-  color: ${({ light }) => (light ? 'white' : 'black')};
-  font-weight: ${({ strong }) => (strong ? 'bold' : 'normal')};
+  color: 'black';
   padding: 0.1rem 0.5rem;
   border-radius: 99rem;
+`
+
+const Warning = styled.div`
+  color: white;
+  font-weight: bold;
+  & a {
+    color: white !important;
+    text-decoration: underline;
+  }
 `
 
 const HomeIcon = styled.img`
@@ -82,17 +90,17 @@ export function Candidates() {
                   </Equivalent>
                 )}{' '}
                 {showWarning && (
-                  <ScorePill
-                    light
-                    strong
-                    color={SCORES_RAMP[currentResult.properties.score]}
-                  >
-                    Warning: this is a high-emission trip.{' '}
-                    <a href="https://hbr.org/2022/07/how-to-lead-better-virtual-meetings">
-                      Virtual meetings don't have to be bad.
-                    </a>{' '}
-                    Have you (re)considered this?
-                  </ScorePill>
+                  <Warning>
+                    <ScorePill
+                      color={SCORES_RAMP[currentResult.properties.score]}
+                    >
+                      Warning: this is a high-emission trip.{' '}
+                      <a href="https://hbr.org/2022/07/how-to-lead-better-virtual-meetings">
+                        Virtual meetings don't have to be bad.
+                      </a>{' '}
+                      Have you (re)considered this?
+                    </ScorePill>
+                  </Warning>
                 )}
               </CurrentResult>
             )}
