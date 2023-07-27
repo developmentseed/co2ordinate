@@ -6,7 +6,7 @@ export default [
       coordinates: [-122.336457, 37.8711583],
     },
     properties: {
-      team: 'Science fiction writers',
+      group: 'Science fiction writers',
       name: 'Ursula K. Le Guin',
     },
   },
@@ -17,7 +17,7 @@ export default [
       coordinates: [32.158889, 53.975],
     },
     properties: {
-      team: 'Science fiction writers',
+      group: 'Science fiction writers',
       name: 'Isaac Asimov',
     },
   },
@@ -28,7 +28,7 @@ export default [
       coordinates: [-118.2018486, 34.184451],
     },
     properties: {
-      team: 'Science fiction writers',
+      group: 'Science fiction writers',
       name: 'Octavia Butler',
     },
   },
@@ -39,7 +39,7 @@ export default [
       coordinates: [-1.7038558, 47.2381431],
     },
     properties: {
-      team: 'Science fiction writers',
+      group: 'Science fiction writers',
       name: 'Jules Verne',
     },
   },
@@ -50,7 +50,7 @@ export default [
       coordinates: [-0.0079634, 51.394831],
     },
     properties: {
-      team: 'Science fiction writers',
+      group: 'Science fiction writers',
       name: 'H.G. Wells',
     },
   },
@@ -61,7 +61,7 @@ export default [
       coordinates: [23.9421963, 49.8326679],
     },
     properties: {
-      team: 'Science fiction writers',
+      group: 'Science fiction writers',
       name: 'Stanislaw Lem',
     },
   },
@@ -73,7 +73,7 @@ export default [
     },
     properties: {
       name: 'Nikola Tesla',
-      team: 'Inventors',
+      group: 'Inventors',
     },
   },
   {
@@ -84,7 +84,7 @@ export default [
     },
     properties: {
       name: 'William Kamkwamba',
-      team: 'Inventors',
+      group: 'Inventors',
     },
   },
   {
@@ -95,7 +95,7 @@ export default [
     },
     properties: {
       name: 'Grace Hopper',
-      team: 'Inventors',
+      group: 'Inventors',
     },
   },
   {
@@ -106,7 +106,7 @@ export default [
     },
     properties: {
       name: 'Wangari Maathai',
-      team: 'Scientists',
+      group: 'Scientists',
     },
   },
   {
@@ -117,7 +117,7 @@ export default [
     },
     properties: {
       name: 'Salim Ali',
-      team: 'Scientists',
+      group: 'Scientists',
     },
   },
 ]

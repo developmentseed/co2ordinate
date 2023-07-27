@@ -1,0 +1,28 @@
+{
+    "version": 8,
+    "sources": {
+
+        "basemap": {
+            "data": "./basemap.json",
+            "type": "geojson"
+        }
+    },
+    "layers": [
+        {
+            "id": "land",
+            "type": "background",
+            "layout": {},
+            "paint": {
+                "background-color": "hsl(220, 1%, 90%)"
+            }
+        },
+        {
+            "type": "fill",
+            "source": "basemap",
+            "id": "basemap",
+            "paint": {
+                "fill-color": "hsl(220, 1%, 100%)"
+            }
+        }
+    ]
+}
