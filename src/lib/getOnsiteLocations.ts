@@ -1,16 +1,16 @@
 import bbox from '@turf/bbox'
 import getDistance from '@turf/distance'
 import greatCircle from '@turf/great-circle'
-import getGreatCircle from '@turf/great-circle'
 import { featureCollection } from '@turf/helpers'
 import { Feature, Point } from 'geojson'
 import { ckmeans } from 'simple-statistics'
 
 export interface TeamMember {
-  title: string
-  id: string
-  location: [number, number]
+  name: string
+  group: string
 }
+
+export type TeamMemberFeature = Feature<Point, TeamMember>
 
 export interface Airport {
   municipality: string
@@ -19,7 +19,7 @@ export interface Airport {
   type: 'large_airport' | 'medium_airport'
 }
 
-export interface AirportTeamMember extends Feature<Point, TeamMember> {
+export interface AirportTeamMember extends TeamMemberFeature {
   distance: number | null
   co2: number | null
   homeAirportCode: string | null
@@ -58,7 +58,7 @@ export default function getOnsiteLocations(
   teamMembers: Feature<Point, TeamMember>[],
   airports: Feature<Point, Airport>[],
   maxResults = 10,
-  alwaysIncludeHomeAirports = true,
+  alwaysIncludeHomeAirports = true
 ): Feature<Point, Result>[] {
   if (teamMembers.length < 2) return []
 
@@ -171,7 +171,7 @@ export default function getOnsiteLocations(
       },
     ]
   })
-  
+
   // Do not show local airports that are not home airports
   // TODO make it configurable
   let finalResults = results.filter(
@@ -181,24 +181,27 @@ export default function getOnsiteLocations(
   )
   finalResults.sort((a, b) => a.properties.totalCO2 - b.properties.totalCO2)
 
-
   const homeAirports = finalResults.filter(
     (airport) => airport.properties.homeAirportCount
-    )
+  )
 
   const nonHomeAirports = finalResults.filter(
     (airport) => !airport.properties.homeAirportCount
-    )
+  )
 
   const slicedResults = []
   if (alwaysIncludeHomeAirports) {
-    slicedResults.push(...homeAirports.slice(0, maxResults))  
+    slicedResults.push(...homeAirports.slice(0, maxResults))
   }
 
-  slicedResults.push(...nonHomeAirports.slice(0, maxResults - slicedResults.length))
+  slicedResults.push(
+    ...nonHomeAirports.slice(0, maxResults - slicedResults.length)
+  )
   slicedResults.sort((a, b) => a.properties.totalCO2 - b.properties.totalCO2)
 
-  return slicedResults
+  const withScores = getScores(slicedResults)
+
+  return withScores
 }
 
 export function getGreatCircles(result: Feature<Point, Result>) {
@@ -212,15 +215,42 @@ export function formatCO2(co2: number) {
   return [(co2 / 1000).toFixed(2), 't CO₂'].join('')
 }
 
-export function getScores(results: Feature<Point, Result>[], numBreaks = 5) {
-  const allCO2s = results.map(
-    (r) => r.properties.totalCO2
-  )
+// If value is > maxAbsoluteCO2, this bucket will be skipped when doing kmeans
+export const DEFAULT_SCORE_BREAKS = [
+  { maxAbsoluteCO2: 10000 },
+  { maxAbsoluteCO2: 20000 },
+  { maxAbsoluteCO2: 30000 },
+  {},
+  {},
+]
 
-  const clusters = ckmeans(allCO2s, numBreaks)
+export function getScores(
+  results: Feature<Point, Result>[],
+  breaks = DEFAULT_SCORE_BREAKS
+) {
+  const bestValue = results[0].properties.totalCO2
+
+  let startBreaksAt = 0
+  for (let i = 0; i < breaks.length; i++) {
+    if (
+      bestValue < breaks[i].maxAbsoluteCO2 ||
+      breaks[i].maxAbsoluteCO2 === undefined
+    ) {
+      startBreaksAt = i
+      break
+    }
+  }
+
+  const totalBreaks = breaks.length - startBreaksAt
+
+  const allCO2s = results.map((r) => r.properties.totalCO2)
+
+  const clusters = ckmeans(allCO2s, totalBreaks)
 
   const resultsWithScores = results.map((r) => {
-    const score = clusters.findIndex((c) => c.includes(r.properties.totalCO2))
+    const score =
+      clusters.findIndex((c) => c.includes(r.properties.totalCO2)) +
+      startBreaksAt
     return {
       ...r,
       properties: {
@@ -231,5 +261,4 @@ export function getScores(results: Feature<Point, Result>[], numBreaks = 5) {
   })
 
   return resultsWithScores
- 
 }

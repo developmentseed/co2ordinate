@@ -1,21 +1,25 @@
 import { createRoot } from 'react-dom/client'
 import maplibregl, { Map } from 'maplibre-gl'
-import style from './maplibre-style.json'
+import style from '../style/maplibre-style.json'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import Popup from './Popup'
-import useMapStyle, { AIRPORT_ICON_LAYER_ID, AIRPORT_LAYER_ID } from './useMapStyle'
+import useMapStyle, {
+  AIRPORT_ICON_LAYER_ID,
+  AIRPORT_LAYER_ID,
+} from '../hooks/useMapStyle'
 import {
   currentResultAtom,
   customTeamMembersAtom,
   resultsAtom,
   selectedAirportCodeAtom,
+  selectedTeamMemberNamesAtom,
   selectedTeamMembersAtom,
 } from './atoms.ts'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 
 const CandidatesMapSection = styled.div`
-  min-height: 20rem;
+  height: 100%;
   flex: 0 0 40vw;
 `
 
@@ -23,12 +27,13 @@ export default function MapWrapper({}: any) {
   const mapContainer = useRef()
   const mapRef = useRef<Map>()
   const [mapLoaded, setMapLoaded] = useState(false)
-  const [selectedAirportCode, setSelectedAirportCode] = useAtom(selectedAirportCodeAtom)
+  const setSelectedAirportCode = useSetAtom(selectedAirportCodeAtom)
   const [currentlyAddedMember, setCurrentlyAddedMember] = useState(null)
   const currentResult = useAtomValue(currentResultAtom)
   const results = useAtomValue(resultsAtom)
-  const [selectedTeamMembers, setSelectedTeamMembers] = useAtom(
-    selectedTeamMembersAtom
+  const selectedTeamMembers = useAtomValue(selectedTeamMembersAtom)
+  const [selectedTeamMemberNames, setSelectedTeamMemberNames] = useAtom(
+    selectedTeamMemberNamesAtom
   )
   const [customTeamMembers, setCustomTeamMembers] = useAtom(
     customTeamMembersAtom
@@ -44,17 +49,22 @@ export default function MapWrapper({}: any) {
   }, [mapLoaded, currentStyle])
 
   const addMember = useCallback(
-    (name: string) => {
+    (name: string, group: string | null) => {
+      console.log('addMember', name, group)
       setCurrentlyAddedMember(null)
       const newTeamMember = {
         ...currentlyAddedMember,
         properties: {
           name,
+          isCustom: true,
         },
+      }
+      if (group) {
+        newTeamMember.properties.group = group
       }
       popupRef.current.remove()
       setCustomTeamMembers([...customTeamMembers, newTeamMember])
-      setSelectedTeamMembers([...selectedTeamMembers, newTeamMember])
+      setSelectedTeamMemberNames([...selectedTeamMemberNames, name])
     },
     [currentlyAddedMember]
   )
@@ -74,7 +84,9 @@ export default function MapWrapper({}: any) {
 
     const getAirportAtCursor = (e) => {
       const features = mbMap.queryRenderedFeatures(e.point)
-      const airport = features.find((f) => [AIRPORT_ICON_LAYER_ID, AIRPORT_LAYER_ID].includes(f.layer.id))
+      const airport = features.find((f) =>
+        [AIRPORT_ICON_LAYER_ID, AIRPORT_LAYER_ID].includes(f.layer.id)
+      )
       return airport
     }
 
@@ -132,8 +144,8 @@ export default function MapWrapper({}: any) {
       }
 
       const popupNode = document.createElement('div')
-      const root = createRoot(popupNode); 
-      root.render(<Popup onSubmit={addMember} />);
+      const root = createRoot(popupNode)
+      root.render(<Popup onSubmit={addMember} />)
 
       popupRef.current
         .setLngLat(currentlyAddedMember?.geometry.coordinates)
@@ -141,6 +153,29 @@ export default function MapWrapper({}: any) {
       popupRef.current.addTo(mbMap)
     }
   }, [mapLoaded, currentlyAddedMember])
+
+  useEffect(() => {
+    if (!selectedTeamMembers || selectedTeamMembers.length < 2) return
+    const mbMap = mapRef.current
+
+    const bbox = selectedTeamMembers.reduce(
+      (acc, member) => {
+        const [lon, lat] = member.geometry.coordinates
+        return [
+          Math.min(acc[0], lon),
+          Math.min(acc[1], lat),
+          Math.max(acc[2], lon),
+          Math.max(acc[3], lat),
+        ]
+      },
+      [Infinity, Infinity, -Infinity, -Infinity]
+    )
+    if (mapLoaded && mbMap) {
+      mbMap.fitBounds(bbox as any, {
+        padding: { top: 50, right: 50, bottom: 50, left: 550 },
+      })
+    }
+  }, [mapLoaded, selectedTeamMembers])
 
   const popupRef = useRef<maplibregl.Popup>()
 

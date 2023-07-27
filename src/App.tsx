@@ -1,17 +1,8 @@
-import { Planner } from './planner/Planner'
+import { Planner } from './components/Planner'
 import DEFAULT_TEAM from './exampleTeam'
-import {
-  DevseedUiThemeProvider,
-  themeVal,
-  glsp,
-  media,
-  divide,
-} from '@devseed-ui/theme-provider'
+import { DevseedUiThemeProvider, themeVal } from '@devseed-ui/theme-provider'
 import theme from './theme'
-import styled, { css } from 'styled-components'
-import { useState } from 'react'
-import { TeamMember } from './planner/getOnsiteLocations'
-import { Drop } from './planner/Drop'
+import styled from 'styled-components'
 
 const Page = styled.div`
   display: flex;
@@ -19,6 +10,7 @@ const Page = styled.div`
   min-height: 100vh;
   max-width: ${themeVal('layout.max')};
   margin: 0 auto;
+  font-size: 0.9rem;
 `
 
 const PageBody = styled.div`
@@ -27,45 +19,33 @@ const PageBody = styled.div`
   flex-direction: column;
 `
 
-const innerSpacingCss = (size) => css`
-  gap: ${glsp(themeVal(`layout.gap.${size}`))};
-  padding: ${glsp(
-    divide(themeVal(`layout.gap.${size}`), 2),
-    themeVal(`layout.gap.${size}`)
-  )};
-`
-
 const Header = styled.header`
   display: flex;
   justify-content: space-between;
+  height: 50px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background: white;
+  padding: 0.3rem 1rem;
+
+  h1 {
+    font-size: 1.4rem;
+  }
 `
 
-export const PageMainContent = styled.main`
-  ${innerSpacingCss('xsmall')}
+const PageMainContent = styled.main`
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+`
 
-  ${media.smallUp`
-    ${innerSpacingCss('xsmall')}
-  `}
-
-  ${media.mediumUp`
-    ${innerSpacingCss('medium')}
-  `}
-
-  ${media.largeUp`
-    ${innerSpacingCss('large')}
-  `}
-
-  ${media.xlargeUp`
-    ${innerSpacingCss('xlarge')}
-  `}
+const PlannerWrapper = styled.div`
+  position: relative;
+  height: calc(100vh - 50px);
 `
 
 export function App() {
-  const [customTeam, setCustomTeam] = useState<TeamMember[] | null>(null)
-  console.log(customTeam)
   return (
     <DevseedUiThemeProvider theme={theme}>
       <Page>
@@ -73,9 +53,10 @@ export function App() {
           <PageMainContent>
             <Header>
               <h1>Meet-n-Greta: gather sustainably</h1>
-              <Drop setCustomTeam={setCustomTeam} />
             </Header>
-            <Planner baseTeam={customTeam || DEFAULT_TEAM} />
+            <PlannerWrapper>
+              <Planner baseTeam={DEFAULT_TEAM} />
+            </PlannerWrapper>
           </PageMainContent>
         </PageBody>
       </Page>

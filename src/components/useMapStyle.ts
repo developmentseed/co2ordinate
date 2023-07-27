@@ -1,10 +1,10 @@
 import { Feature, featureCollection } from '@turf/helpers'
 import { Point } from 'geojson'
-import { Result, TeamMember, getGreatCircles, getScores } from './getOnsiteLocations'
+import { Result, TeamMember, getGreatCircles, getScores } from '../lib/getOnsiteLocations'
 import style from './maplibre-style.json'
 import { useMemo } from 'react'
+import { SCORES_RAMP } from '../constants'
 
-const SCORES_RAMP = ["#FFED61","#F3BB52","#E78842","#DB5633","#CF2323"];
 
 export const AIRPORT_ICON_LAYER_ID = 'airports-icon-all'
 export const AIRPORT_LAYER_ID = 'airports-bg-all'
