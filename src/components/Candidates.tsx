@@ -6,10 +6,10 @@ import {
   selectedAirportCodeAtom,
 } from './atoms'
 import { useAtom, useAtomValue } from 'jotai'
-import { SCORES_RAMP, THEME_COLOR } from '../constants'
+import { SCORES_RAMP } from '../constants'
 import { DEFAULT_SCORE_BREAKS, formatCO2 } from '../lib/getOnsiteLocations'
 import useEquivalent from '../hooks/useEquivalent'
-import { Table } from './Planner'
+import Table from './Table'
 
 const CurrentResult = styled.div`
   margin-bottom: 1rem;
