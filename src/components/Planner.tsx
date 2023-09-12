@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import styled from 'styled-components'
-import 'maplibre-gl/dist/maplibre-gl.css'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import Map from './Map'
 import {
   airportsAtom,

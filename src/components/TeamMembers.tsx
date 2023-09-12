@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import styled from 'styled-components'
-import 'maplibre-gl/dist/maplibre-gl.css'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import { Button } from '@devseed-ui/button'
 import {
   baseTeamMembersAtom,

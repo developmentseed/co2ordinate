@@ -52,11 +52,14 @@ export const getIconAirportLayer = (currentResult: Feature<Point, Result>) => {
 export default function useMapStyle(
   currentResult: Feature<Point, Result>,
   results: Feature<Point, Result>[],
-  teamMembers: Feature<Point, TeamMember>[]
+  teamMembers: Feature<Point, TeamMember>[],
+  baseStyle: any
 ) {
+
   const currentStyle = useMemo(() => {
-    const newStyle = { ...style }
-    if (!currentResult) return newStyle
+    if (!baseStyle) return null
+    const newStyle = { ...baseStyle }
+    if (!currentResult) return baseStyle
 
     const greatCircles = featureCollection(getGreatCircles(currentResult))
 

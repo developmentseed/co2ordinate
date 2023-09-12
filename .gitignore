@@ -3,5 +3,5 @@ node_modules
 dist
 docs
 .parcel-cache/
-.env.local
+.env
 .yarn
