@@ -52,7 +52,7 @@ export function App() {
         <PageBody>
           <PageMainContent>
             <Header>
-              <h1>Meet-n-Greta: gather sustainably</h1>
+              <h1>Co₂ordinate: gather sustainably</h1>
             </Header>
             <PlannerWrapper>
               <Planner baseTeam={DEFAULT_TEAM} />

@@ -156,7 +156,7 @@ export function Candidates() {
             may be less accurate than the industry-standard based on other
             factors such as payload, carrier type, layovers, etc.
             <br />
-            <a href="https://github.com/developmentseed/meet-and-greta">
+            <a href="https://github.com/developmentseed/co2ordinate">
               Discuss this prototype on the Github repo
             </a>
           </Footer>
