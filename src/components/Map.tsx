@@ -1,6 +1,5 @@
 import { createRoot } from 'react-dom/client'
-import maplibregl, { Map } from 'maplibre-gl'
-import style from '../style/maplibre-style.json'
+import mapbox, { Map } from 'mapbox-gl'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import Popup from './Popup'
@@ -17,6 +16,7 @@ import {
   selectedTeamMembersAtom,
 } from './atoms.ts'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { BASE_STYLE_PATH } from '../constants'
 
 const CandidatesMapSection = styled.div`
   height: 100%;
@@ -39,18 +39,8 @@ export default function MapWrapper({}: any) {
     customTeamMembersAtom
   )
 
-  const currentStyle = useMapStyle(currentResult, results, selectedTeamMembers)
-
-  useEffect(() => {
-    const mbMap = mapRef.current
-    if (mapLoaded && mbMap) {
-      mbMap.setStyle(currentStyle)
-    }
-  }, [mapLoaded, currentStyle])
-
   const addMember = useCallback(
     (name: string, group: string | null) => {
-      console.log('addMember', name, group)
       setCurrentlyAddedMember(null)
       const newTeamMember = {
         ...currentlyAddedMember,
@@ -68,9 +58,25 @@ export default function MapWrapper({}: any) {
     },
     [currentlyAddedMember]
   )
+  
+
+  const [style, setStyle] = useState(null)
+  useEffect(() => {
+    if (!process.env.MAPBOX_TOKEN || !process.env.MAPBOX_USER || !process.env.MAPBOX_STYLE_NAME) return
+    const styleUrl = `${BASE_STYLE_PATH}/${process.env.MAPBOX_USER}/${process.env.MAPBOX_STYLE_NAME}?access_token=${process.env.MAPBOX_TOKEN}`
+    fetch(styleUrl)
+      .then((res) => res.json())
+      .then((style) => {
+        setStyle(style)
+      })
+  }, [])
+
+  console.log(style)
 
   useEffect(() => {
-    const mbMap = new maplibregl.Map({
+    if (!style) return
+    mapbox.accessToken = process.env.MAPBOX_TOKEN;
+    const mbMap = new mapbox.Map({
       container: mapContainer.current,
       style,
       logoPosition: 'bottom-left',
@@ -131,13 +137,25 @@ export default function MapWrapper({}: any) {
       })
       setMapLoaded(true)
     })
-  }, [setCurrentlyAddedMember])
+  }, [setCurrentlyAddedMember, style])
+
+
+  const currentStyle = useMapStyle(currentResult, results, selectedTeamMembers, style)
+
+  useEffect(() => {
+    const mbMap = mapRef.current
+    if (mapLoaded && mbMap && currentStyle) {
+      console.log(currentStyle)
+      mbMap.setStyle(currentStyle)
+    }
+  }, [mapLoaded, currentStyle])
+
 
   useEffect(() => {
     const mbMap = mapRef.current
     if (mapLoaded && mbMap && currentlyAddedMember) {
       if (!popupRef.current) {
-        popupRef.current = new maplibregl.Popup({
+        popupRef.current = new mapbox.Popup({
           closeButton: true,
           closeOnClick: false,
         })
@@ -177,7 +195,7 @@ export default function MapWrapper({}: any) {
     }
   }, [mapLoaded, selectedTeamMembers])
 
-  const popupRef = useRef<maplibregl.Popup>()
+  const popupRef = useRef<mapbox.Popup>()
 
   return <CandidatesMapSection ref={mapContainer} />
 }
