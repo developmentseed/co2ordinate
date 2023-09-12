@@ -71,8 +71,6 @@ export default function MapWrapper({}: any) {
       })
   }, [])
 
-  console.log(style)
-
   useEffect(() => {
     if (!style) return
     mapbox.accessToken = process.env.MAPBOX_TOKEN;
@@ -145,7 +143,6 @@ export default function MapWrapper({}: any) {
   useEffect(() => {
     const mbMap = mapRef.current
     if (mapLoaded && mbMap && currentStyle) {
-      console.log(currentStyle)
       mbMap.setStyle(currentStyle)
     }
   }, [mapLoaded, currentStyle])
