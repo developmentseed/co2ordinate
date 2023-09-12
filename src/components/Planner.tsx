@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import styled from 'styled-components'
 import 'mapbox-gl/dist/mapbox-gl.css'
@@ -13,58 +13,72 @@ import {
 } from './atoms'
 import { TeamMemberFeature, formatCO2 } from '../lib/getOnsiteLocations'
 import { Candidates } from './Candidates'
-import AddTeam from './AddTeam'
 import TeamMembers from './TeamMembers'
+import { Button } from '@devseed-ui/button'
+import {
+  CollecticonChevronDownSmall,
+  CollecticonChevronUpSmall,
+} from '@devseed-ui/collecticons'
 
 type PlannerProps = {
   baseTeam: TeamMemberFeature[]
 }
 
+const PlannerLayout = styled.main`
+  height: 100%;
+  display: grid;
+  grid-template-columns: 30rem 1fr;
+`
+
+const SidePanel = styled.div`
+  background: white;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(68, 63, 63, 0.04),
+    0 4px 16px 2px rgba(68, 63, 63, 0.08);
+  position: relative;
+  z-index: 20;
+  display: flex;
+  flex-flow: column nowrap;
+  height: calc(100vh - 3.125rem);
+  overflow: hidden;
+  border: 2px solid black;
+`
 const MapWrapper = styled.div`
   height: 100%;
   width: 100%;
   position: relative;
 `
-
-const Overlay = styled.div`
-  position: absolute;
-  width: 100%;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  padding: 1rem;
-  pointer-events: none;
+const PanelBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: auto;
 `
-
-const Panel = styled.div`
-  background: white;
-  min-width: 450px;
-  max-width: 30vw;
-  margin-bottom: 1rem;
-  pointer-events: all;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
-
-  & > h2 {
-    font-size: 1.1rem;
+const DrawerHeader = styled.header`
+  position: relative;
+  display: flex;
+  &:not(:first-of-type) {
+    border-top: 2px solid black;
   }
 `
-
-const AddTeamWrapper = styled(Panel)``
-
-const TeamMembersWrapper = styled(Panel)`
-  min-height: 30vh;
-  max-height: 40vh;
-  overflow: scroll;
+const DrawerHeaderButton = styled(Button)`
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  border-radius: 0;
+  padding: 0.5rem 1rem;
+  height: auto;
 `
-
-const CandidatesWrapper = styled(Panel)`
-  background: white;
-  justify-content: center;
-  width: 100%;
-  min-width: 100%;
-  max-width: 100%;
+const DrawerBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 0.5rem 1rem;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  align-items: flex-start;
+  overflow: auto;
 `
 
 export function Planner({ baseTeam }: PlannerProps) {
@@ -134,26 +148,75 @@ export function Planner({ baseTeam }: PlannerProps) {
     if (results?.length) setSelectedAirportCode(results[0].properties.iata_code)
   }, [results])
 
+  const [isAttendeesPanelActive, setIsAttendeesPanelActive] = useState(true)
+  const [isLocationsPanelActive, setIsLocationsPanelActive] = useState(true)
+
   return (
-    <>
+    <PlannerLayout>
+      <SidePanel>
+        <PanelBody>
+          <DrawerHeader>
+            <DrawerHeaderButton
+              onClick={() => setIsAttendeesPanelActive(!isAttendeesPanelActive)}
+              fitting="baggy"
+            >
+              Attendees{' '}
+              {isAttendeesPanelActive ? (
+                <CollecticonChevronDownSmall
+                  meaningful
+                  title="Collapse content"
+                />
+              ) : (
+                <CollecticonChevronUpSmall meaningful title="Expand content" />
+              )}
+            </DrawerHeaderButton>
+          </DrawerHeader>
+          {isAttendeesPanelActive && (
+            <DrawerBody>
+              <TeamMembers />
+              <Button
+                onClick={() =>
+                  setIsAttendeesPanelActive(!isAttendeesPanelActive)
+                }
+                size="small"
+                style={{
+                  fontSize: '10px',
+                  fontWeight: 'normal',
+                  letterSpacing: '1px',
+                }}
+                radius="square"
+                variation="base-fill"
+              >
+                Done
+              </Button>
+            </DrawerBody>
+          )}
+          <DrawerHeader>
+            <DrawerHeaderButton
+              onClick={() => setIsLocationsPanelActive(!isLocationsPanelActive)}
+              fitting="baggy"
+            >
+              Meeting Locations{' '}
+              {isLocationsPanelActive ? (
+                <CollecticonChevronDownSmall
+                  meaningful
+                  title="Collapse content"
+                />
+              ) : (
+                <CollecticonChevronUpSmall meaningful title="Expand content" />
+              )}
+            </DrawerHeaderButton>
+          </DrawerHeader>
+          {isLocationsPanelActive && (
+            <DrawerBody>
+              <Candidates />
+            </DrawerBody>
+          )}
+        </PanelBody>
+      </SidePanel>
       <MapWrapper>
         <Map />
       </MapWrapper>
-      <Overlay>
-        <AddTeamWrapper>
-          <AddTeam />
-        </AddTeamWrapper>
-
-        <TeamMembersWrapper>
-          <TeamMembers />
-        </TeamMembersWrapper>
-
-        {!!results?.length && (
-          <CandidatesWrapper>
-            <Candidates />
-          </CandidatesWrapper>
-        )}
-      </Overlay>
-    </>
+    </PlannerLayout>
   )
 }

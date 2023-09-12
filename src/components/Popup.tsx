@@ -39,7 +39,10 @@ export default function Popup({
           value={selectedGroup}
         />
       </div>
-      <button onClick={() => onSubmit(name, selectedGroup?.value)} disabled={name === ''}>
+      <button
+        onClick={() => onSubmit(name, selectedGroup?.value)}
+        disabled={name === ''}
+      >
         Submit
       </button>
     </div>

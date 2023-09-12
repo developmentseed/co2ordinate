@@ -3,23 +3,23 @@ import { Dropdown, DropMenu, DropMenuItem } from '@devseed-ui/dropdown'
 import { ToolbarIconButton } from '@devseed-ui/toolbar'
 import { CollecticonEllipsisVertical } from '@devseed-ui/collecticons'
 import {
-  groupsAtom,
+  baseTeamMembersAtom,
+  customTeamMembersAtom,
   selectedTeamMemberNamesAtom,
-  selectedTeamMembersAtom,
   teamMembersAtom,
 } from './atoms'
 import { TeamMemberFeature } from '../lib/getOnsiteLocations'
 import { useCallback } from 'react'
 
-export default function GroupsDropdown({
+export default function MemberOptionsDropdown({
   teamMember,
 }: {
   teamMember: TeamMemberFeature
 }) {
-  // const groups = useAtomValue(groupsAtom)
-  // const groupsWithoutCurrent = groups.filter(
-  //   (group) => group !== teamMember.properties.group
-  // )
+  const [baseTeamMembers, setBaseTeamMembers] = useAtom(baseTeamMembersAtom)
+  const [customTeamMembers, setCustomTeamMembers] = useAtom(
+    customTeamMembersAtom
+  )
 
   const teamMembers = useAtomValue(teamMembersAtom)
   const [selectedTeamMemberNames, setSelectedTeamMemberNames] = useAtom(
@@ -47,29 +47,52 @@ export default function GroupsDropdown({
     setSelectedTeamMemberNames(newSelectedTeamMemberNames)
   }, [teamMembers, teamMember, selectedTeamMemberNames])
 
+  const onDeleteTeamMember = useCallback(
+    (teamMember) => {
+      const container = teamMember.properties.isCustom
+        ? customTeamMembers
+        : baseTeamMembers
+      const del = teamMember.properties.isCustom
+        ? setCustomTeamMembers
+        : setBaseTeamMembers
+      const newSelection = container.filter(
+        (t) => t.properties.name !== teamMember.properties.name
+      )
+      del(newSelection)
+      setSelectedTeamMemberNames(
+        selectedTeamMemberNames.filter((t) => t !== teamMember.properties.name)
+      )
+    },
+    [
+      setCustomTeamMembers,
+      setBaseTeamMembers,
+      customTeamMembers,
+      baseTeamMembers,
+    ]
+  )
   return (
     <Dropdown
       alignment="right"
       triggerElement={(props) => (
-        <ToolbarIconButton variation="base-text" {...props}>
+        <ToolbarIconButton size="small" variation="base-text" {...props}>
           <CollecticonEllipsisVertical title="More options" meaningful />
         </ToolbarIconButton>
       )}
     >
-      {/* {groupsWithoutCurrent.length && (
-        <DropMenu>
-          {groupsWithoutCurrent.map((group) => (
-            <DropMenuItem onClick={() => changeTeamMemberGroup(group)} key={group}>Move to group: {group}</DropMenuItem>
-          ))}
-        </DropMenu>
-      )} */}
-      <DropMenu>
-        <DropMenuItem onClick={selectAllGroup}>
-          Select all members from group {teamMember.properties.group}
+      <DropMenu style={{ fontSize: '0.75rem', fontWeight: 'normal'}}>
+        <DropMenuItem onClick={() => onDeleteTeamMember(teamMember)}>
+          Delete Attendee
         </DropMenuItem>
-        <DropMenuItem onClick={deselectAllGroup}>
-          Deselect all members from group {teamMember.properties.group}
-        </DropMenuItem>
+        {teamMember.properties.group && (
+          <>
+            <DropMenuItem onClick={selectAllGroup}>
+              Select all members from group {teamMember.properties.group}
+            </DropMenuItem>
+            <DropMenuItem onClick={deselectAllGroup}>
+              Deselect all members from group {teamMember.properties.group}
+            </DropMenuItem>{' '}
+          </>
+        )}
       </DropMenu>
     </Dropdown>
   )

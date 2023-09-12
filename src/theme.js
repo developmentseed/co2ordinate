@@ -1,12 +1,13 @@
 import { createUITheme } from '@devseed-ui/theme-provider'
 
 export default function themeOverrides() {
-  const fontFamily = '"Antarctica VAR", sans-serif'
+  const fontFamily = '"IBM Plex Mono", Courier New, monospace'
 
   return createUITheme({
     type: {
       base: {
         family: fontFamily,
+        weight: 'normal',
       },
       heading: {
         family: fontFamily,
@@ -15,6 +16,7 @@ export default function themeOverrides() {
       },
     },
     button: {
+      shape : {rounded: 0},
       type: {
         family: fontFamily,
         settings: '"wdth" 32, "wght" 592',
