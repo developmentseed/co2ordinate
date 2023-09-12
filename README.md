@@ -1,4 +1,4 @@
-# meet-and-greta
+# Co₂ordinate
 
 Find the most efficient place to gather GHG-wise
 

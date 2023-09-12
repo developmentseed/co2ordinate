@@ -48,9 +48,9 @@
     }
   },
   "browserslist": "> 0.5%, last 2 versions, not dead",
-  "name": "meet-and-greta",
+  "name": "co2ordinate",
   "version": "1.0.0",
-  "repository": "git@github.com:developmentseed/meet-and-greta.git",
+  "repository": "git@github.com:developmentseed/co2ordinate.git",
   "author": "Erik Escoffier <erik@developmentseed.org>",
   "license": "MIT"
 }
