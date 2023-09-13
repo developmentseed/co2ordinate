@@ -29,9 +29,9 @@ const PlannerLayout = styled.main`
   height: 100%;
   display: grid;
   grid-template-columns: 1fr;
+  grid-template-rows: 1fr min-content;
   ${media.mediumUp`
     grid-template-columns: minmax(30rem, 33vw) 1fr;
-    grid-template-rows: auto 1fr;
   `}
 `
 
@@ -44,12 +44,14 @@ const SidePanel = styled.div`
   z-index: 20;
   display: flex;
   flex-flow: column nowrap;
-  height: calc(100vh - 3.125rem);
   overflow: hidden;
   border: 2px solid black;
   grid-column: 1;
+  height: max-content;
+  align-self: flex-end;
   ${media.mediumUp`
     min-height: initial;
+    height: calc(100vh - 3.125rem);
     grid-row: initial;
   `}
 `
@@ -97,6 +99,7 @@ const DrawerBody = styled.div`
   gap: 0.25rem;
   font-size: 0.75rem;
   overflow: auto;
+  justify-content: flex-start;
 `
 
 export function Planner({ baseTeam }: PlannerProps) {
