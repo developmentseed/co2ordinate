@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import countryCodeEmoji from 'country-code-emoji'
 import styled from 'styled-components'
 import {
@@ -9,7 +10,8 @@ import { useAtom, useAtomValue } from 'jotai'
 import { SCORES_RAMP } from '../constants'
 import { DEFAULT_SCORE_BREAKS, formatCO2 } from '../lib/getOnsiteLocations'
 import useEquivalent from '../hooks/useEquivalent'
-import Table, {StackedTd} from './Table'
+import Table, { StackedTd } from './Table'
+import { Button } from '@devseed-ui/button'
 import { CollecticonHouse } from '@devseed-ui/collecticons'
 
 const CurrentResult = styled.article`
@@ -64,6 +66,7 @@ const Warning = styled.div`
 `
 
 export function Candidates() {
+  const [expanded, setExpanded] = useState(false)
   const results = useAtomValue(resultsAtom)
   const currentResult = useAtomValue(currentResultAtom)
   const [selectedAirportCode, setSelectedAirportCode] = useAtom(
@@ -73,6 +76,7 @@ export function Candidates() {
 
   const showWarning =
     currentResult?.properties.totalCO2 > DEFAULT_SCORE_BREAKS[0].maxAbsoluteCO2
+  const resultsDisplay = expanded ? results : results?.slice(0, 5)
 
   return (
     <>
@@ -82,7 +86,7 @@ export function Candidates() {
             <CurrentResult>
               <div>
                 Travelling to {currentResult.properties.municipality}:{' '}
-                {currentResult.properties.airportTeamMembers.length} people {' '}
+                {currentResult.properties.airportTeamMembers.length} people{' '}
                 <ScorePill color={SCORES_RAMP[currentResult.properties.score]}>
                   {formatCO2(currentResult.properties.totalCO2)}
                 </ScorePill>
@@ -112,7 +116,7 @@ export function Candidates() {
                 <th>Total dist</th>
                 <th>Home?</th>
               </tr>
-              {results?.map((result) => (
+              {resultsDisplay?.map((result) => (
                 <ResultRow
                   key={result.properties.iata_code}
                   onClick={
@@ -146,6 +150,19 @@ export function Candidates() {
               ))}
             </tbody>
           </Table>
+          <Button
+            style={{
+              fontSize: '12px',
+              letterSpacing: '1px',
+            }}
+            size="small"
+            variation="base-outline"
+            radius="square"
+            fitting="baggy"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? 'Show less' : 'Show more'}
+          </Button>
         </CandidatesTableSection>
       )}
       <Footer>
