@@ -1,6 +1,7 @@
 import { Planner } from './components/Planner'
 import DEFAULT_TEAM from './exampleTeam'
-import { DevseedUiThemeProvider, themeVal } from '@devseed-ui/theme-provider'
+import { DevseedUiThemeProvider } from '@devseed-ui/theme-provider'
+import GlobalStyles from './styles/global'
 import theme from './theme'
 import styled from 'styled-components'
 
@@ -49,6 +50,7 @@ const PlannerWrapper = styled.div`
 export function App() {
   return (
     <DevseedUiThemeProvider theme={theme}>
+      <GlobalStyles />
       <Page>
         <PageMainContent>
           <PageHeader>
