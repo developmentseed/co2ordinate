@@ -8,9 +8,8 @@ const Page = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  max-width: ${themeVal('layout.max')};
+  max-height: 100vh;
   margin: 0 auto;
-  font-size: 0.9rem;
 `
 
 const PageHeader = styled.header`
@@ -24,15 +23,11 @@ const PageHeader = styled.header`
   background: white;
   padding: 0.3rem 1rem;
   border: 2px solid black;
-  & > div:first-child {
-    display: flex;
-    flex-flow: column nowrap;
-  }
   h1 {
     font-size: 1.25rem;
     text-transform: uppercase;
     line-height: 1.125;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
   }
   p {
     line-height: 1;

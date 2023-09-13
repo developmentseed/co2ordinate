@@ -14,6 +14,7 @@ import {
 import { TeamMemberFeature, formatCO2 } from '../lib/getOnsiteLocations'
 import { Candidates } from './Candidates'
 import TeamMembers from './TeamMembers'
+import { media } from '@devseed-ui/theme-provider'
 import { Button } from '@devseed-ui/button'
 import {
   CollecticonChevronDownSmall,
@@ -27,7 +28,11 @@ type PlannerProps = {
 const PlannerLayout = styled.main`
   height: 100%;
   display: grid;
-  grid-template-columns: 30rem 1fr;
+  grid-template-columns: 1fr;
+  ${media.mediumUp`
+    grid-template-columns: minmax(30rem, 33vw) 1fr;
+    grid-template-rows: auto 1fr;
+  `}
 `
 
 const SidePanel = styled.div`
@@ -42,11 +47,25 @@ const SidePanel = styled.div`
   height: calc(100vh - 3.125rem);
   overflow: hidden;
   border: 2px solid black;
+  grid-column: 1;
+  ${media.mediumUp`
+    min-height: initial;
+    grid-row: initial;
+  `}
 `
 const MapWrapper = styled.div`
+  min-height: 30rem;
+  order: -1;
+  grid-column: 1;
   height: 100%;
   width: 100%;
   position: relative;
+  ${media.mediumUp`
+  order: initial;
+    min-height: initial;
+    grid-column: 2;
+    grid-row: initial;
+  `}
 `
 const PanelBody = styled.div`
   display: flex;
@@ -77,7 +96,6 @@ const DrawerBody = styled.div`
   padding: 0.5rem 1rem;
   gap: 0.25rem;
   font-size: 0.75rem;
-  align-items: flex-start;
   overflow: auto;
 `
 
