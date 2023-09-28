@@ -9,7 +9,7 @@ import { useAtom, useAtomValue } from 'jotai'
 import { SCORES_RAMP } from '../constants'
 import { DEFAULT_SCORE_BREAKS, formatCO2 } from '../lib/getOnsiteLocations'
 import useEquivalent from '../hooks/useEquivalent'
-import Table, {StackedTd} from './Table'
+import Table, { StackedTd } from './Table'
 import { CollecticonHouse } from '@devseed-ui/collecticons'
 
 const CurrentResult = styled.article`
@@ -82,7 +82,7 @@ export function Candidates() {
             <CurrentResult>
               <div>
                 Travelling to {currentResult.properties.municipality}:{' '}
-                {currentResult.properties.airportTeamMembers.length} people {' '}
+                {currentResult.properties.airportTeamMembers.length} people{' '}
                 <ScorePill color={SCORES_RAMP[currentResult.properties.score]}>
                   {formatCO2(currentResult.properties.totalCO2)}
                 </ScorePill>

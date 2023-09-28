@@ -37,6 +37,7 @@ export default function Popup({
           options={groupsOptions}
           onChange={onSelectGroup}
           value={selectedGroup}
+          placeholder="Select or type..."
         />
       </div>
       <button
