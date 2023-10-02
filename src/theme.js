@@ -8,6 +8,7 @@ export default function themeOverrides() {
       base: {
         family: fontFamily,
         weight: 'normal',
+        color: '#000000',
       },
       heading: {
         family: fontFamily,
@@ -20,7 +21,7 @@ export default function themeOverrides() {
       type: {
         family: fontFamily,
         settings: '"wdth" 32, "wght" 592',
-        weight: 'normal',
+        weight: 'bold',
         case: 'uppercase',
       },
     },

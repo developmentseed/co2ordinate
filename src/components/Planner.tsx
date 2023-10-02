@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import styled from 'styled-components'
 import 'mapbox-gl/dist/mapbox-gl.css'
@@ -14,6 +14,7 @@ import {
 import { TeamMemberFeature, formatCO2 } from '../lib/getOnsiteLocations'
 import { Candidates } from './Candidates'
 import TeamMembers from './TeamMembers'
+import { media } from '@devseed-ui/theme-provider'
 import { Button } from '@devseed-ui/button'
 import {
   CollecticonChevronDownSmall,
@@ -27,7 +28,11 @@ type PlannerProps = {
 const PlannerLayout = styled.main`
   height: 100%;
   display: grid;
-  grid-template-columns: 30rem 1fr;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr min-content;
+  ${media.mediumUp`
+    grid-template-columns: minmax(30rem, 33vw) 1fr;
+  `}
 `
 
 const SidePanel = styled.div`
@@ -39,14 +44,30 @@ const SidePanel = styled.div`
   z-index: 20;
   display: flex;
   flex-flow: column nowrap;
-  height: calc(100vh - 3.125rem);
   overflow: hidden;
   border: 2px solid black;
+  grid-column: 1;
+  height: max-content;
+  align-self: flex-end;
+  ${media.mediumUp`
+    min-height: initial;
+    height: calc(100vh - 3.125rem);
+    grid-row: initial;
+  `}
 `
 const MapWrapper = styled.div`
+  min-height: 30rem;
+  order: -1;
+  grid-column: 1;
   height: 100%;
   width: 100%;
   position: relative;
+  ${media.mediumUp`
+  order: initial;
+    min-height: initial;
+    grid-column: 2;
+    grid-row: initial;
+  `}
 `
 const PanelBody = styled.div`
   display: flex;
@@ -77,8 +98,8 @@ const DrawerBody = styled.div`
   padding: 0.5rem 1rem;
   gap: 0.25rem;
   font-size: 0.75rem;
-  align-items: flex-start;
   overflow: auto;
+  justify-content: flex-start;
 `
 
 export function Planner({ baseTeam }: PlannerProps) {
@@ -102,14 +123,7 @@ export function Planner({ baseTeam }: PlannerProps) {
     )
     setBaseTeamMembers(localSavedTeamMembers || baseTeam)
     setSelectedTeamMemberNames(
-      localSavedSelectedTeamMembersNames || [
-        'Jules Verne',
-        'Octavia Butler',
-        'Salim Ali',
-        'Stanislas Lem',
-        'Ursula K. Le Guin',
-        'Wangari Maathai',
-      ]
+      localSavedSelectedTeamMembersNames || []
     )
   }, [baseTeam])
 
@@ -148,8 +162,23 @@ export function Planner({ baseTeam }: PlannerProps) {
     if (results?.length) setSelectedAirportCode(results[0].properties.iata_code)
   }, [results])
 
-  const [isAttendeesPanelActive, setIsAttendeesPanelActive] = useState(true)
-  const [isLocationsPanelActive, setIsLocationsPanelActive] = useState(true)
+  const [panelState, setPanelState] = useState<
+    'attendees' | 'locations' | 'both'
+  >('both')
+  const onToggleHeader = useCallback(
+    (header: 'attendees' | 'locations') => {
+      if (panelState === 'attendees' || panelState === 'locations') {
+        setPanelState('both')
+      } else if (header === 'attendees') {
+        setPanelState('locations')
+      } else {
+        setPanelState('attendees')
+      }
+    },
+    [panelState]
+  )
+  const showAttendeesPanel = panelState === 'attendees' || panelState === 'both'
+  const showLocationsPanel = panelState === 'locations' || panelState === 'both'
 
   return (
     <PlannerLayout>
@@ -157,11 +186,11 @@ export function Planner({ baseTeam }: PlannerProps) {
         <PanelBody>
           <DrawerHeader>
             <DrawerHeaderButton
-              onClick={() => setIsAttendeesPanelActive(!isAttendeesPanelActive)}
+              onClick={() => onToggleHeader('attendees')}
               fitting="baggy"
             >
               Attendees{' '}
-              {isAttendeesPanelActive ? (
+              {showAttendeesPanel ? (
                 <CollecticonChevronDownSmall
                   meaningful
                   title="Collapse content"
@@ -171,13 +200,11 @@ export function Planner({ baseTeam }: PlannerProps) {
               )}
             </DrawerHeaderButton>
           </DrawerHeader>
-          {isAttendeesPanelActive && (
+          {showAttendeesPanel && (
             <DrawerBody>
               <TeamMembers />
               <Button
-                onClick={() =>
-                  setIsAttendeesPanelActive(!isAttendeesPanelActive)
-                }
+                onClick={() => setPanelState('locations')}
                 size="small"
                 style={{
                   fontSize: '10px',
@@ -193,11 +220,11 @@ export function Planner({ baseTeam }: PlannerProps) {
           )}
           <DrawerHeader>
             <DrawerHeaderButton
-              onClick={() => setIsLocationsPanelActive(!isLocationsPanelActive)}
+              onClick={() => onToggleHeader('locations')}
               fitting="baggy"
             >
               Meeting Locations{' '}
-              {isLocationsPanelActive ? (
+              {showLocationsPanel ? (
                 <CollecticonChevronDownSmall
                   meaningful
                   title="Collapse content"
@@ -207,7 +234,7 @@ export function Planner({ baseTeam }: PlannerProps) {
               )}
             </DrawerHeaderButton>
           </DrawerHeader>
-          {isLocationsPanelActive && (
+          {showLocationsPanel && (
             <DrawerBody>
               <Candidates />
             </DrawerBody>
