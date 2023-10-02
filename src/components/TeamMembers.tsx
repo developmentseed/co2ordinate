@@ -4,6 +4,13 @@ import styled from 'styled-components'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { Button } from '@devseed-ui/button'
 import {
+  CollecticonCrosshair,
+  CollecticonEllipsisVertical,
+} from '@devseed-ui/collecticons'
+import { Dropdown, DropMenu, DropMenuItem } from '@devseed-ui/dropdown'
+import { Drop } from './Drop'
+
+import {
   baseTeamMembersAtom,
   customTeamMembersAtom,
   groupsAtom,
@@ -13,8 +20,8 @@ import {
   currentResultAtom,
 } from './atoms'
 import { formatCO2 } from '../lib/getOnsiteLocations'
-import Table from './Table'
-import GroupsDropdown from './GroupsDropdown'
+import Table, { StackedTd } from './Table'
+import MemberOptionsDropdown from './MemberOptionsDropdown'
 
 const TeamMembersRow = styled.tr`
   color: ${({ disabled }) => (disabled ? 'grey' : 'inherit')};
@@ -24,6 +31,27 @@ const GroupCell = styled.td`
   display: flex;
   align-items: center;
   justify-content: space-between;
+`
+const AddTeamOptions = styled.ul`
+  list-style: none;
+  padding: 0;
+  & > li:not(:last-child):after {
+    display: block;
+    width: 100%;
+    text-align: center;
+    height: 12px;
+    content: 'or';
+  }
+  & > li:first-child > strong {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  & em {
+    display: block;
+  }
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid black;
 `
 
 export default function TeamMembers() {
@@ -52,30 +80,6 @@ export default function TeamMembers() {
       }
     },
     [selectedTeamMemberNames]
-  )
-
-  const onDeleteTeamMember = useCallback(
-    (teamMember) => {
-      const container = teamMember.properties.isCustom
-        ? customTeamMembers
-        : baseTeamMembers
-      const del = teamMember.properties.isCustom
-        ? setCustomTeamMembers
-        : setBaseTeamMembers
-      const newSelection = container.filter(
-        (t) => t.properties.name !== teamMember.properties.name
-      )
-      del(newSelection)
-      setSelectedTeamMemberNames(
-        selectedTeamMemberNames.filter((t) => t !== teamMember.properties.name)
-      )
-    },
-    [
-      setCustomTeamMembers,
-      setBaseTeamMembers,
-      customTeamMembers,
-      baseTeamMembers,
-    ]
   )
 
   const onDeleteAllTeamMembers = useCallback(() => {
@@ -112,34 +116,56 @@ export default function TeamMembers() {
     return withSelected
   }, [team, currentResult, customTeamMembers, selectedTeamMembers])
 
-
   return (
     <>
-      <h2>2. Select who is coming</h2>
-      <em>Please select at least 2 team members to show results.</em>
+      <AddTeamOptions>
+        <li>
+          <strong>
+            <CollecticonCrosshair /> Click on the map to set attendee locations
+          </strong>
+        </li>
+        <li>
+          <strong>Add CSV file</strong>
+          <em>Must include name, lat, lon columns. Optional 'group' column.</em>
+          <Drop />
+        </li>
+      </AddTeamOptions>
       <Table>
         <tbody>
           {!!teamWithSelected.length && (
             <tr>
-              <th></th>
               <th>
                 {/* TODO */}
                 {/* <input type="checkbox" /> */}
               </th>
-              <th>Name</th>
-              {groups?.length ? <th>Group</th> : null}
+              <th>Attendee</th>
               <th>CO₂</th>
-              <th>Total dist</th>
+              <th>Distance</th>
               <th>
-                {' '}
-                <Button
-                  radius="rounded"
-                  size="small"
-                  variation="base-outline"
-                  onClick={onDeleteAllTeamMembers}
+                <Dropdown
+                  alignment="right"
+                  triggerElement={(props) => (
+                    <Button
+                      size="small"
+                      fitting="skinny"
+                      {...props}
+                    >
+                      <CollecticonEllipsisVertical
+                        meaningful
+                        title="Show options"
+                      />
+                    </Button>
+                  )}
                 >
-                  <img src="./trash-bin.svg"></img>
-                </Button>
+                  <DropMenu>
+                    <DropMenuItem
+                      style={{ fontSize: '12px' }}
+                      onClick={onDeleteAllTeamMembers}
+                    >
+                      Delete All Attendees
+                    </DropMenuItem>
+                  </DropMenu>
+                </Dropdown>
               </th>
             </tr>
           )}
@@ -154,21 +180,16 @@ export default function TeamMembers() {
               }
             >
               <td>
-                <img src="./user.png"></img>
-              </td>
-              <td>
                 <input
                   type="checkbox"
                   checked={atm.properties.isSelected}
                   onChange={() => onToggleTeamMember(atm.properties.name)}
                 />
               </td>
-              <td>{atm.properties.name}</td>
-              {groups?.length ? (
-                <GroupCell>
-                  {atm.properties.group} <GroupsDropdown teamMember={atm} />
-                </GroupCell>
-              ) : null}
+              <StackedTd>
+                {atm.properties.name}
+                {groups?.length && <span>{atm.properties.group}</span>}
+              </StackedTd>
               <td>
                 {atm.properties.co2 ? formatCO2(atm.properties.co2) : '-'}
               </td>
@@ -179,14 +200,7 @@ export default function TeamMembers() {
                 km
               </td>
               <td>
-                <Button
-                  radius="rounded"
-                  size="small"
-                  variation="base-outline"
-                  onClick={() => onDeleteTeamMember(atm)}
-                >
-                  <img src="./trash-bin.svg"></img>
-                </Button>
+                <MemberOptionsDropdown teamMember={atm} />
               </td>
             </TeamMembersRow>
           ))}

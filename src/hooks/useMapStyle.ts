@@ -1,7 +1,6 @@
 import { Feature, featureCollection } from '@turf/helpers'
 import { Point } from 'geojson'
 import { Result, TeamMember, getGreatCircles, getScores } from '../lib/getOnsiteLocations'
-import style from '../style/maplibre-style.json'
 import { useMemo } from 'react'
 import { SCORES_RAMP } from '../constants'
 

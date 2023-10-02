@@ -2,6 +2,7 @@ import { useDropzone } from 'react-dropzone'
 import { useCallback } from 'react'
 import { parse } from 'papaparse'
 import { Button } from '@devseed-ui/button'
+import { CollecticonUpload } from '@devseed-ui/collecticons'
 import { useAtom } from 'jotai'
 import { customTeamMembersAtom } from './atoms'
 
@@ -113,11 +114,13 @@ export function Drop() {
   return (
     <Button
       {...getRootProps({ className: 'dropzone' })}
-      radius="rounded"
+      radius="square"
       size="small"
+      style={{textTransform: 'none', borderStyle: 'dashed', background: '#efefef', fontSize: '12px'}}
       variation="base-outline"
       fitting="baggy"
     >
+      <CollecticonUpload />
       Click or drag CSV here
       <input {...getInputProps()} />
     </Button>
