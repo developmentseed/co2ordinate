@@ -123,14 +123,7 @@ export function Planner({ baseTeam }: PlannerProps) {
     )
     setBaseTeamMembers(localSavedTeamMembers || baseTeam)
     setSelectedTeamMemberNames(
-      localSavedSelectedTeamMembersNames || [
-        'Jules Verne',
-        'Octavia Butler',
-        'Salim Ali',
-        'Stanislas Lem',
-        'Ursula K. Le Guin',
-        'Wangari Maathai',
-      ]
+      localSavedSelectedTeamMembersNames || []
     )
   }, [baseTeam])
 
