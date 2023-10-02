@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import countryCodeEmoji from 'country-code-emoji'
 import styled from 'styled-components'
 import {
@@ -9,10 +10,15 @@ import { useAtom, useAtomValue } from 'jotai'
 import { SCORES_RAMP } from '../constants'
 import { DEFAULT_SCORE_BREAKS, formatCO2 } from '../lib/getOnsiteLocations'
 import useEquivalent from '../hooks/useEquivalent'
-import Table from './Table'
+import Table, { StackedTd } from './Table'
+import { Button } from '@devseed-ui/button'
+import { CollecticonHouse } from '@devseed-ui/collecticons'
 
-const CurrentResult = styled.div`
-  margin-bottom: 1rem;
+const CurrentResult = styled.article`
+  & > div:first-child {
+    font-size: 1rem;
+    font-weight: bold;
+  }
 `
 
 const CandidatesTableSection = styled.div`
@@ -33,7 +39,9 @@ const Equivalent = styled.p`
 `
 
 const Footer = styled.div`
-  margin-top: 2rem;
+  margin-top: auto;
+  font-size: 0.75rem;
+  line-height: 1.125;
 `
 
 const ScorePill = styled.span`
@@ -41,23 +49,24 @@ const ScorePill = styled.span`
   color: 'black';
   padding: 0.1rem 0.5rem;
   border-radius: 99rem;
+  line-height: 1.25;
+  white-space: pre;
 `
 
 const Warning = styled.div`
+  background: ${({ color }) => color};
+  padding: 0 0.25rem;
   color: white;
   font-weight: bold;
+  white-space: initial;
   & a {
     color: white !important;
-    text-decoration: underline;
+    text-decoration: underline !important;
   }
 `
 
-const HomeIcon = styled.img`
-  float: left;
-  margin-right: 0.2rem;
-`
-
 export function Candidates() {
+  const [expanded, setExpanded] = useState(false)
   const results = useAtomValue(resultsAtom)
   const currentResult = useAtomValue(currentResultAtom)
   const [selectedAirportCode, setSelectedAirportCode] = useAtom(
@@ -67,39 +76,36 @@ export function Candidates() {
 
   const showWarning =
     currentResult?.properties.totalCO2 > DEFAULT_SCORE_BREAKS[0].maxAbsoluteCO2
+  const resultsDisplay = expanded ? results : results?.slice(0, 5)
 
   return (
     <>
-      {!!results?.length && (
+      {!!results?.length ? (
         <>
           <CandidatesTableSection>
             {currentResult && (
               <CurrentResult>
-                <h2>
+                <div>
                   Travelling to {currentResult.properties.municipality}:{' '}
-                  {currentResult.properties.airportTeamMembers.length} people -{' '}
+                  {currentResult.properties.airportTeamMembers.length} people{' '}
                   <ScorePill
                     color={SCORES_RAMP[currentResult.properties.score]}
                   >
                     {formatCO2(currentResult.properties.totalCO2)}
                   </ScorePill>
-                </h2>
+                </div>
                 {equivalent && (
                   <Equivalent>
                     {equivalent[0]} (<a href={equivalent[1]}>source</a>)
                   </Equivalent>
                 )}{' '}
                 {showWarning && (
-                  <Warning>
-                    <ScorePill
-                      color={SCORES_RAMP[currentResult.properties.score]}
-                    >
-                      Warning: this is a high-emission trip.{' '}
-                      <a href="https://hbr.org/2022/07/how-to-lead-better-virtual-meetings">
-                        Virtual meetings don't have to be bad.
-                      </a>{' '}
-                      Have you (re)considered this?
-                    </ScorePill>
+                  <Warning color={SCORES_RAMP[currentResult.properties.score]}>
+                    Warning: this is a high-emission trip.{' '}
+                    <a href="https://hbr.org/2022/07/how-to-lead-better-virtual-meetings">
+                      Virtual meetings don't have to be bad.
+                    </a>{' '}
+                    Have you (re)considered this?
                   </Warning>
                 )}
               </CurrentResult>
@@ -108,13 +114,12 @@ export function Candidates() {
             <Table>
               <tbody>
                 <tr>
-                  <th>Name/IATA code</th>
-                  <th>Country</th>
+                  <th>Location</th>
                   <th>Total CO₂</th>
                   <th>Total dist</th>
                   <th>Home?</th>
                 </tr>
-                {results?.map((result) => (
+                {resultsDisplay?.map((result) => (
                   <ResultRow
                     key={result.properties.iata_code}
                     onClick={
@@ -125,14 +130,14 @@ export function Candidates() {
                       result.properties.iata_code === selectedAirportCode
                     }
                   >
-                    <td>
-                      {result.properties.municipality} (
+                    <StackedTd>
+                      {result.properties.municipality} | (
                       {result.properties.iata_code})
-                    </td>
-                    <td>
-                      {result.properties.iso_country}{' '}
-                      {countryCodeEmoji(result.properties.iso_country)}{' '}
-                    </td>
+                      <span>
+                        {result.properties.iso_country}{' '}
+                        {countryCodeEmoji(result.properties.iso_country)}{' '}
+                      </span>
+                    </StackedTd>
                     <td>
                       <ScorePill color={SCORES_RAMP[result.properties.score]}>
                         {formatCO2(result.properties.totalCO2)}
@@ -142,7 +147,7 @@ export function Candidates() {
                     <td>
                       {[...Array(result.properties.homeAirportCount)].map(
                         (e, i) => (
-                          <HomeIcon src="./house.png" />
+                          <CollecticonHouse />
                         )
                       )}
                     </td>
@@ -150,6 +155,19 @@ export function Candidates() {
                 ))}
               </tbody>
             </Table>
+            <Button
+            style={{
+              fontSize: '12px',
+              letterSpacing: '1px',
+            }}
+            size="small"
+            variation="base-outline"
+            radius="square"
+            fitting="baggy"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? 'Show less' : 'Show more'}
+          </Button> 
           </CandidatesTableSection>
           <Footer>
             ⚠️ Those numbers are estimates based on kg CO₂/km averages, which
@@ -161,6 +179,10 @@ export function Candidates() {
             </a>
           </Footer>
         </>
+      ) : (
+        <p>
+          <em>Select at least 2 attendees to show results</em>
+        </p>
       )}
     </>
   )

@@ -20,7 +20,7 @@ export default function Popup({
     setSelectedGroup(option)
   }
   return (
-    <div>
+    <>
       <h1>Add team member</h1>
       <div>
         Name:
@@ -37,11 +37,15 @@ export default function Popup({
           options={groupsOptions}
           onChange={onSelectGroup}
           value={selectedGroup}
+          placeholder="Select or type..."
         />
       </div>
-      <button onClick={() => onSubmit(name, selectedGroup?.value)} disabled={name === ''}>
+      <button
+        onClick={() => onSubmit(name, selectedGroup?.value)}
+        disabled={name === ''}
+      >
         Submit
       </button>
-    </div>
+    </>
   )
 }
