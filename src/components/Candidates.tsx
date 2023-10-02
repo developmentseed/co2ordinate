@@ -76,7 +76,7 @@ export function Candidates() {
 
   return (
     <>
-      {!!results?.length && (
+      {!!results?.length ? (
         <CandidatesTableSection>
           {currentResult && (
             <CurrentResult>
@@ -147,7 +147,11 @@ export function Candidates() {
             </tbody>
           </Table>
         </CandidatesTableSection>
-      )}
+      ) : (
+        <p>
+          <em>Add at least 2 attendees to show results</em>
+        </p>
+      )} 
       <Footer>
         ⚠️ Those numbers are estimates based on kg CO₂/km averages, which may be
         less accurate than the industry-standard based on other factors such as

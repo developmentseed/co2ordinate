@@ -171,7 +171,7 @@ export function Planner({ baseTeam }: PlannerProps) {
 
   const [panelState, setPanelState] = useState<
     'attendees' | 'locations' | 'both'
-  >('attendees')
+  >('both')
   const onToggleHeader = useCallback(
     (header: 'attendees' | 'locations') => {
       if (panelState === 'attendees' || panelState === 'locations') {

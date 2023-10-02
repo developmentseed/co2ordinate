@@ -118,9 +118,6 @@ export default function TeamMembers() {
 
   return (
     <>
-      <p>
-        <em>Add at least 2 attendees to show results</em>
-      </p>
       <AddTeamOptions>
         <li>
           <strong>
