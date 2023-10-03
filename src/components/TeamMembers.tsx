@@ -185,7 +185,7 @@ export default function TeamMembers() {
               </td>
               <StackedTd>
                 {atm.properties.name}
-                {groups?.length && <span>{atm.properties.group}</span>}
+                {!!groups?.length && <span>{atm.properties.group}</span>}
               </StackedTd>
               <td>
                 {atm.properties.co2 ? formatCO2(atm.properties.co2) : '-'}
