@@ -58,11 +58,15 @@ export default function MapWrapper({}: any) {
     },
     [currentlyAddedMember]
   )
-  
 
   const [style, setStyle] = useState(null)
   useEffect(() => {
-    if (!process.env.MAPBOX_TOKEN || !process.env.MAPBOX_USER || !process.env.MAPBOX_STYLE_NAME) return
+    if (
+      !process.env.MAPBOX_TOKEN ||
+      !process.env.MAPBOX_USER ||
+      !process.env.MAPBOX_STYLE_NAME
+    )
+      return
     const styleUrl = `${BASE_STYLE_PATH}/${process.env.MAPBOX_USER}/${process.env.MAPBOX_STYLE_NAME}?access_token=${process.env.MAPBOX_TOKEN}`
     fetch(styleUrl)
       .then((res) => res.json())
@@ -73,7 +77,7 @@ export default function MapWrapper({}: any) {
 
   useEffect(() => {
     if (!style) return
-    mapbox.accessToken = process.env.MAPBOX_TOKEN;
+    mapbox.accessToken = process.env.MAPBOX_TOKEN
     const mbMap = new mapbox.Map({
       container: mapContainer.current,
       style,
@@ -137,8 +141,12 @@ export default function MapWrapper({}: any) {
     })
   }, [setCurrentlyAddedMember, style])
 
-
-  const currentStyle = useMapStyle(currentResult, results, selectedTeamMembers, style)
+  const currentStyle = useMapStyle(
+    currentResult,
+    results,
+    selectedTeamMembers,
+    style
+  )
 
   useEffect(() => {
     const mbMap = mapRef.current
@@ -146,7 +154,6 @@ export default function MapWrapper({}: any) {
       mbMap.setStyle(currentStyle)
     }
   }, [mapLoaded, currentStyle])
-
 
   useEffect(() => {
     const mbMap = mapRef.current
@@ -186,9 +193,14 @@ export default function MapWrapper({}: any) {
       [Infinity, Infinity, -Infinity, -Infinity]
     )
     if (mapLoaded && mbMap) {
-      mbMap.fitBounds(bbox as any, {
-        padding: { top: 50, right: 50, bottom: 50, left: 550 },
-      })
+      try {
+        mbMap.fitBounds(bbox as any, {
+          padding: { top: 50, right: 50, bottom: 50, left: 550 },
+        })
+      } catch (e) {
+        console.log(e)
+        console.log(bbox)
+      }
     }
   }, [mapLoaded, selectedTeamMembers])
 
