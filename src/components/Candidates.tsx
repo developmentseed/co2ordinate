@@ -147,7 +147,7 @@ export function Candidates() {
                     <td>
                       {[...Array(result.properties.homeAirportCount)].map(
                         (e, i) => (
-                          <CollecticonHouse />
+                          <CollecticonHouse key={i} />
                         )
                       )}
                     </td>
@@ -156,18 +156,18 @@ export function Candidates() {
               </tbody>
             </Table>
             <Button
-            style={{
-              fontSize: '12px',
-              letterSpacing: '1px',
-            }}
-            size="small"
-            variation="base-outline"
-            radius="square"
-            fitting="baggy"
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? 'Show less' : 'Show more'}
-          </Button> 
+              style={{
+                fontSize: '12px',
+                letterSpacing: '1px',
+              }}
+              size="small"
+              variation="base-outline"
+              radius="square"
+              fitting="baggy"
+              onClick={() => setExpanded(!expanded)}
+            >
+              {expanded ? 'Show less' : 'Show more'}
+            </Button>
           </CandidatesTableSection>
           <Footer>
             ⚠️ Those numbers are estimates based on kg CO₂/km averages, which

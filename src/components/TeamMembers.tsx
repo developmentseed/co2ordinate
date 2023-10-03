@@ -93,9 +93,10 @@ export default function TeamMembers() {
 
     const withSelected = team
       .map((t) => {
-        const isSelected = selectedTeamMembers.find(
-          (st) => st.properties.name === t.properties.name
-        )
+        const isSelected =
+          selectedTeamMembers.find(
+            (st) => st.properties.name === t.properties.name
+          ) !== undefined
         const airportTeamMember =
           currentResult?.properties.airportTeamMembers.find(
             (st) => st.properties.name === t.properties.name
@@ -145,11 +146,7 @@ export default function TeamMembers() {
                 <Dropdown
                   alignment="right"
                   triggerElement={(props) => (
-                    <Button
-                      size="small"
-                      fitting="skinny"
-                      {...props}
-                    >
+                    <Button size="small" fitting="skinny" {...props}>
                       <CollecticonEllipsisVertical
                         meaningful
                         title="Show options"
