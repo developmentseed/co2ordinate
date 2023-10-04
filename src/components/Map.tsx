@@ -64,10 +64,10 @@ export default function MapWrapper({}: any) {
     if (
       !process.env.MAPBOX_TOKEN ||
       !process.env.MAPBOX_USER ||
-      !process.env.MAPBOX_STYLE_NAME
+      !process.env.MAPBOX_STYLE_ID
     )
       return
-    const styleUrl = `${BASE_STYLE_PATH}/${process.env.MAPBOX_USER}/${process.env.MAPBOX_STYLE_NAME}?access_token=${process.env.MAPBOX_TOKEN}`
+    const styleUrl = `${BASE_STYLE_PATH}/${process.env.MAPBOX_USER}/${process.env.MAPBOX_STYLE_ID}?access_token=${process.env.MAPBOX_TOKEN}`
     fetch(styleUrl)
       .then((res) => res.json())
       .then((style) => {
