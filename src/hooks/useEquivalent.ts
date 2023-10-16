@@ -32,7 +32,14 @@ export default function useEquivalent(currentResult) {
         )} kilometers travelled with a small car`,
         'https://ourworldindata.org/travel-carbon-footprint',
       ],
-    ][Math.floor(Math.random() * 4)]
+      [
+        `🤑 equivalent to approx. US$${formatEquivalent(
+          currentResult,
+          1000 / 132.38
+        )}, according to the Swiss carbon tax`,
+        'https://www.iea.org/policies/17762-swiss-carbon-tax',
+      ],
+    ][Math.floor(Math.random() * 5)]
 
     return text
   }, [currentResult])

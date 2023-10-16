@@ -5,3 +5,4 @@ docs
 .parcel-cache/
 .env
 .yarn
+.env.local
