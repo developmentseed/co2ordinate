@@ -4,6 +4,7 @@ import { DevseedUiThemeProvider } from '@devseed-ui/theme-provider'
 import GlobalStyles from './styles/global'
 import theme from './theme'
 import styled from 'styled-components'
+import ReactGA4 from 'react-ga4'
 
 const Page = styled.div`
   display: flex;
@@ -47,7 +48,18 @@ const PlannerWrapper = styled.div`
   height: calc(100vh - 50px);
 `
 
+const gaTrackingCode = process.env.GA_TRACKING_CODE
+
 export function App() {
+  // Enable Google Analytics if a tracking code is provided
+  if (gaTrackingCode) {
+    ReactGA4.initialize(gaTrackingCode)
+    ReactGA4.send({
+      hitType: 'pageview',
+      page: window.location.pathname + window.location.search,
+    })
+  }
+
   return (
     <DevseedUiThemeProvider theme={theme}>
       <GlobalStyles />
