@@ -27,9 +27,10 @@ The algorithm will go through all worldwide major airports (using the [OurAirpor
 
 The app is a straightforward React app that was initially set up to work in our intranet using our great [UI library](https://ui.ds.io/).
 
-Clone the repo.
+- Clone the repo.
+- Copy `.env.sample` file to `.env` and set the Mapbox token, user and style id.
 
-Then run:
+- Then run:
 
 ```
 yarn
