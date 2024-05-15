@@ -51,7 +51,7 @@ const AddTeamOptions = styled.ul`
     display: block;
   }
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid #1A1A1A;
 `
 
 export default function TeamMembers() {

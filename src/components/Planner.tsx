@@ -45,7 +45,7 @@ const SidePanel = styled.div`
   display: flex;
   flex-flow: column nowrap;
   overflow: hidden;
-  border: 2px solid black;
+  border-right: 1px solid #1A1A1A;
   grid-column: 1;
   height: max-content;
   align-self: flex-end;
@@ -79,7 +79,7 @@ const DrawerHeader = styled.header`
   position: relative;
   display: flex;
   &:not(:first-of-type) {
-    border-top: 2px solid black;
+    border-top: 1px solid #1A1A1A;
   }
 `
 const DrawerHeaderButton = styled(Button)`

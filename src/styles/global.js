@@ -12,7 +12,7 @@ const customStyles = css`
     font-size: 0.75rem;
     line-height: 1rem;
     border-radius: 0;
-    border: 2px solid black;
+    border: 1px solid #1A1A1A;
     & > div {
       display: flex;
       flex-flow: column nowrap;
@@ -22,7 +22,7 @@ const customStyles = css`
         border-radius: 0;
         box-shadow: none;
         outline: none;
-        border: 1px solid black;
+        border: 1px solid #1A1A1A;
         font-weight: bold;
       }
       h1 {

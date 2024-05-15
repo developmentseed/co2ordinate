@@ -23,7 +23,7 @@ const PageHeader = styled.header`
   z-index: 999;
   background: white;
   padding: 0.3rem 1rem;
-  border: 2px solid black;
+  border-bottom: 1px solid #1A1A1A;
   h1 {
     font-size: 1.25rem;
     text-transform: uppercase;
