@@ -157,10 +157,9 @@ export function Candidates() {
             </Table>
             <Button
               style={{
-                fontSize: '12px',
-                letterSpacing: '1px',
+                fontSize: '0.875rem',
+                letterSpacing: '0.5px',
               }}
-              size="small"
               variation="base-outline"
               radius="square"
               fitting="baggy"

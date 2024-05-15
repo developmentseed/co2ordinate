@@ -1,7 +1,7 @@
 import { createUITheme } from '@devseed-ui/theme-provider'
 
 export default function themeOverrides() {
-  const fontFamily = '"IBM Plex Mono", Courier New, monospace'
+  const fontFamily = '"Roboto Mono", Courier New, monospace'
 
   return createUITheme({
     type: {

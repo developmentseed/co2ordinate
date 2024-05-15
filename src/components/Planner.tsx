@@ -36,10 +36,7 @@ const PlannerLayout = styled.main`
 `
 
 const SidePanel = styled.div`
-  background: white;
   background-color: #ffffff;
-  box-shadow: 0 0 0 1px rgba(68, 63, 63, 0.04),
-    0 4px 16px 2px rgba(68, 63, 63, 0.08);
   position: relative;
   z-index: 20;
   display: flex;
@@ -85,7 +82,7 @@ const DrawerHeader = styled.header`
 const DrawerHeaderButton = styled(Button)`
   justify-content: space-between;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 0.875rem;
   letter-spacing: 0.5px;
   border-radius: 0;
   padding: 0.5rem 1rem;
@@ -205,11 +202,10 @@ export function Planner({ baseTeam }: PlannerProps) {
               <TeamMembers />
               <Button
                 onClick={() => setPanelState('locations')}
-                size="small"
+                size="medium"
                 style={{
-                  fontSize: '10px',
-                  fontWeight: 'normal',
-                  letterSpacing: '1px',
+                  fontSize: '0.875rem',
+                  letterSpacing: '0.5px',
                 }}
                 radius="square"
                 variation="base-fill"
