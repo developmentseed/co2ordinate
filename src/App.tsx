@@ -11,6 +11,9 @@ const Page = styled.div`
   min-height: 100vh;
   max-height: 100vh;
   margin: 0 auto;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 `
 
 const PageHeader = styled.header`

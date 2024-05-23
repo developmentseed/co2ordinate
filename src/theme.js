@@ -1,7 +1,7 @@
 import { createUITheme } from '@devseed-ui/theme-provider'
 
 export default function themeOverrides() {
-  const fontFamily = '"Roboto Mono", Courier New, monospace'
+  const fontFamily = '"Roboto Mono", Roboto Mono, monospace, monospace'
 
   return createUITheme({
     type: {
@@ -12,7 +12,6 @@ export default function themeOverrides() {
       },
       heading: {
         family: fontFamily,
-        settings: '"wdth" 24, "wght" 640',
         weight: 'normal',
       },
     },
@@ -20,7 +19,6 @@ export default function themeOverrides() {
       shape : {rounded: 0},
       type: {
         family: fontFamily,
-        settings: '"wdth" 32, "wght" 592',
         weight: 'bold',
         case: 'uppercase',
       },
