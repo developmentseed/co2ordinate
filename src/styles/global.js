@@ -2,6 +2,9 @@ import { createGlobalStyle, css } from 'styled-components'
 import { glsp, themeVal } from '@devseed-ui/theme-provider'
 
 const customStyles = css`
+  body {
+    text-rendering: optimizelegibility;
+  }
   .mapboxgl-map,
   .mapboxgl-popup-content {
     font-size: 0.75rem;
@@ -12,7 +15,7 @@ const customStyles = css`
     font-size: 0.75rem;
     line-height: 1rem;
     border-radius: 0;
-    border: 2px solid black;
+    border: 1px solid #1A1A1A;
     & > div {
       display: flex;
       flex-flow: column nowrap;
@@ -22,7 +25,7 @@ const customStyles = css`
         border-radius: 0;
         box-shadow: none;
         outline: none;
-        border: 1px solid black;
+        border: 1px solid #1A1A1A;
         font-weight: bold;
       }
       h1 {

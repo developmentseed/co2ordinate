@@ -46,7 +46,7 @@ const Footer = styled.div`
 
 const ScorePill = styled.span`
   background: ${({ color }) => color};
-  color: 'black';
+  color: '#1A1A1A';
   padding: 0.1rem 0.5rem;
   border-radius: 99rem;
   line-height: 1.25;
@@ -157,10 +157,9 @@ export function Candidates() {
             </Table>
             <Button
               style={{
-                fontSize: '12px',
-                letterSpacing: '1px',
+                fontSize: '0.875rem',
+                letterSpacing: '0.5px',
               }}
-              size="small"
               variation="base-outline"
               radius="square"
               fitting="baggy"
