@@ -11,6 +11,9 @@ const Page = styled.div`
   min-height: 100vh;
   max-height: 100vh;
   margin: 0 auto;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 `
 
 const PageHeader = styled.header`
@@ -23,16 +26,16 @@ const PageHeader = styled.header`
   z-index: 999;
   background: white;
   padding: 0.3rem 1rem;
-  border: 2px solid black;
+  border-bottom: 1px solid #1A1A1A;
   h1 {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     text-transform: uppercase;
-    line-height: 1.125;
-    letter-spacing: 1px;
+    line-height: 1;
+    letter-spacing: 0.5px;
   }
   p {
     line-height: 1;
-    font-size: 0.75rem;
+    font-size: 0.675rem;
   }
 `
 

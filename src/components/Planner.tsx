@@ -36,16 +36,13 @@ const PlannerLayout = styled.main`
 `
 
 const SidePanel = styled.div`
-  background: white;
   background-color: #ffffff;
-  box-shadow: 0 0 0 1px rgba(68, 63, 63, 0.04),
-    0 4px 16px 2px rgba(68, 63, 63, 0.08);
   position: relative;
   z-index: 20;
   display: flex;
   flex-flow: column nowrap;
   overflow: hidden;
-  border: 2px solid black;
+  border-top: 1px solid #1A1A1A;
   grid-column: 1;
   height: max-content;
   align-self: flex-end;
@@ -53,6 +50,7 @@ const SidePanel = styled.div`
     min-height: initial;
     height: calc(100vh - 3.125rem);
     grid-row: initial;
+    border-right: 1px solid #1A1A1A;
   `}
 `
 const MapWrapper = styled.div`
@@ -79,13 +77,13 @@ const DrawerHeader = styled.header`
   position: relative;
   display: flex;
   &:not(:first-of-type) {
-    border-top: 2px solid black;
+    border-top: 1px solid #1A1A1A;
   }
 `
 const DrawerHeaderButton = styled(Button)`
   justify-content: space-between;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 0.875rem;
   letter-spacing: 0.5px;
   border-radius: 0;
   padding: 0.5rem 1rem;
@@ -205,11 +203,10 @@ export function Planner({ baseTeam }: PlannerProps) {
               <TeamMembers />
               <Button
                 onClick={() => setPanelState('locations')}
-                size="small"
+                size="medium"
                 style={{
-                  fontSize: '10px',
-                  fontWeight: 'normal',
-                  letterSpacing: '1px',
+                  fontSize: '0.875rem',
+                  letterSpacing: '0.5px',
                 }}
                 radius="square"
                 variation="base-fill"

@@ -42,16 +42,17 @@ const AddTeamOptions = styled.ul`
     height: 12px;
     content: 'or';
   }
-  & > li:first-child > strong {
+  & > li:first-child > p {
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    font-size: 0.75rem;
   }
   & em {
     display: block;
   }
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid #1A1A1A;
 `
 
 export default function TeamMembers() {
@@ -121,9 +122,9 @@ export default function TeamMembers() {
     <>
       <AddTeamOptions>
         <li>
-          <strong>
+          <p>
             <CollecticonCrosshair /> Click on the map to set attendee locations
-          </strong>
+          </p>
         </li>
         <li>
           <strong>Add CSV file</strong>
