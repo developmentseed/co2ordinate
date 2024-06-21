@@ -51,6 +51,7 @@ const SidePanel = styled.div`
     height: calc(100vh - 3.125rem);
     grid-row: initial;
     border-right: 1px solid #1A1A1A;
+    border-top: none;
   `}
 `
 const MapWrapper = styled.div`
