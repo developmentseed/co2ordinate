@@ -42,7 +42,7 @@ const SidePanel = styled.div`
   display: flex;
   flex-flow: column nowrap;
   overflow: hidden;
-  border-right: 1px solid #1A1A1A;
+  border-top: 1px solid #1A1A1A;
   grid-column: 1;
   height: max-content;
   align-self: flex-end;
@@ -50,6 +50,7 @@ const SidePanel = styled.div`
     min-height: initial;
     height: calc(100vh - 3.125rem);
     grid-row: initial;
+    border-right: 1px solid #1A1A1A;
   `}
 `
 const MapWrapper = styled.div`
