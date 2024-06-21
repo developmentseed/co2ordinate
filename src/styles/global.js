@@ -2,6 +2,9 @@ import { createGlobalStyle, css } from 'styled-components'
 import { glsp, themeVal } from '@devseed-ui/theme-provider'
 
 const customStyles = css`
+  body {
+    text-rendering: optimizelegibility;
+  }
   .mapboxgl-map,
   .mapboxgl-popup-content {
     font-size: 0.75rem;
