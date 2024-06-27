@@ -2,7 +2,8 @@
 
 Find the most efficient place to gather GHG-wise.
 
-<img width="1705" alt="image" src="https://github.com/developmentseed/co2ordinate/assets/25919630/d0e585db-dfe3-406b-a86d-bbd0f40529fd">
+<img width="1818" alt="image" src="https://github.com/developmentseed/co2ordinate/assets/25919630/64c193d6-9eae-41c9-8fb0-1cd940999790">
+
 
 - 🌍 Add your people by clicking on the map or uploading a .csv.
 - 🌍 Group your people my team.
